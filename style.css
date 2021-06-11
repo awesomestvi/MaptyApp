@@ -50,6 +50,9 @@ a:visited {
   position: absolute;
   top: 10px;
   right: 10px;
+}
+
+.btn {
   background: var(--color-dark--1);
   border: none;
   color: var(--color-brand--2);
@@ -62,7 +65,7 @@ a:visited {
   transition: all 0.2s;
 }
 
-.theme__toggle:active {
+.btn:active {
   transform: translateY(2px);
   box-shadow: none;
 }
@@ -294,7 +297,7 @@ a:visited {
   }
 
   #map {
-    flex: 400px;
+    flex: 350px;
   }
 
   .sidebar {
@@ -303,7 +306,7 @@ a:visited {
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 412px;
+    height: 395px;
     z-index: 1000;
   }
 
@@ -327,5 +330,14 @@ a:visited {
 
   .workout {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .form {
+    height: auto;
+    gap: 1.25rem 2rem;
+  }
+
+  .form__btn {
+    display: block;
   }
 }
