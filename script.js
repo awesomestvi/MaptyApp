@@ -168,7 +168,6 @@ class App {
   _clearInputFields() {
     // prettier-ignore
     inputCadence.value = inputDistance.value = inputDuration.value = inputElevation.value = '';
-    inputDistance.focus();
   }
 
   _newWorkout(e) {
