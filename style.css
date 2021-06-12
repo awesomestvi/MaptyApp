@@ -302,11 +302,11 @@ a:visited {
 
   .sidebar {
     padding: 3rem 2rem;
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    height: calc(100vh - 300px);
+    height: 100%;
     z-index: 1000;
     transform: translateY(300px);
   }
