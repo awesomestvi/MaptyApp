@@ -70,6 +70,10 @@ a:visited {
   box-shadow: none;
 }
 
+.logo_container {
+  text-align: center;
+}
+
 .logo {
   height: 5.2rem;
   align-self: center;
@@ -210,10 +214,15 @@ a:visited {
 }
 
 /* MAP */
-#map {
+.map_container {
   flex: 1;
   height: 100%;
   background-color: var(--color-light--1);
+}
+
+#map {
+  height: 100%;
+  width: 100%;
 }
 
 /* Popup width is defined in JS using options */
@@ -247,7 +256,7 @@ a:visited {
   width: 100%;
   height: 100%;
   background: var(--color-dark--1);
-  z-index: 1000;
+  z-index: 1002;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -296,19 +305,33 @@ a:visited {
     height: initial;
   }
 
+  .map_container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 300px;
+    z-index: 1001;
+  }
+
   #map {
-    flex: 300px;
+    height: 300px;
   }
 
   .sidebar {
     padding: 3rem 2rem;
-    position: absolute;
-    top: 0;
+    position: relative;
+    margin-top: 300px;
+  }
+
+  .logo_container {
+    position: fixed;
+    top: 300px;
     left: 0;
     width: 100%;
-    height: 360px;
-    z-index: 1000;
-    transform: translateY(300px);
+    height: 60px;
+    background: var(--color-dark--1);
+    z-index: 1;
   }
 
   .logo {
@@ -317,11 +340,12 @@ a:visited {
     position: absolute;
     top: 15px;
     left: 20px;
+    margin: 0;
   }
 
   .workouts {
     height: auto;
-    transform: translateY(30px);
+    margin-top: 30px;
   }
 
   .theme__toggle {

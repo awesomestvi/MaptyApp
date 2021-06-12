@@ -28,8 +28,12 @@
   </head>
   <body>
     <div class="sidebar">
-      <img src="logo.png" alt="Logo" class="logo" />
-
+      <div class="logo_container">
+        <img src="logo.png" alt="Logo" class="logo" />
+        <button class="theme__toggle theme__toggle--hidden btn">
+          Toggle Theme
+        </button>
+      </div>
       <ul class="workouts">
         <form class="form hidden">
           <div class="form__row">
@@ -123,13 +127,10 @@
           </div>
         </li> -->
       </ul>
-
-      <button class="theme__toggle theme__toggle--hidden btn">
-        Toggle Theme
-      </button>
     </div>
-
-    <div id="map"></div>
+    <div class="map_container">
+      <div id="map"></div>
+    </div>
 
     <div class="loader__container">
       <div class="lds-ripple">
