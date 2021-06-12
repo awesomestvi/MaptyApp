@@ -125,7 +125,6 @@ class App {
     form.style.display = "none";
     form.classList.add("hidden");
     setTimeout(() => (form.style.display = "grid"), 1000);
-    window.scroll(0, 0);
   }
 
   _showActions(e) {
@@ -316,6 +315,8 @@ class App {
       workoutEl.addEventListener("mouseleave", this._hideActions);
       workoutEl.addEventListener("mouseenter", this._showActions);
     });
+
+    window.scrollTo(0, 0);
   }
 
   _moveToPopup(e) {
