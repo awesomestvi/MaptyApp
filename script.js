@@ -236,6 +236,8 @@ class App {
 
     // Show Reset Btn
     this._showMapActionBtns();
+
+    window.scrollTo(0, 0);
   }
 
   _renderMarker(workout) {
