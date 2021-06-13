@@ -70,6 +70,10 @@ a:visited {
   box-shadow: none;
 }
 
+.btn.reset {
+  color: var(--color-light--1);
+}
+
 .logo_container {
   text-align: center;
 }
@@ -82,7 +86,6 @@ a:visited {
 
 .workouts {
   list-style: none;
-  height: 77vh;
   overflow-y: scroll;
   overflow-x: hidden;
 }
@@ -151,7 +154,28 @@ a:visited {
   right: 2.25rem;
   display: grid;
   grid-template-columns: 1fr 1fr;
+  gap: 0rem 1rem;
   font-size: 16px;
+}
+
+.action__btn {
+  height: 30px;
+  padding: 0 1.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.action__btn i {
+  font-style: normal;
+}
+
+.edit__btn i {
+  font-size: 16px;
+}
+
+.delete__btn i {
+  font-size: 30px;
+  transform: translateY(-3px);
 }
 
 .form {
@@ -183,7 +207,9 @@ a:visited {
 }
 
 .form__row--hidden,
-.theme__toggle--hidden {
+.theme__toggle--hidden,
+.form__btn,
+.btn--hidden {
   display: none;
 }
 
@@ -209,8 +235,13 @@ a:visited {
   background-color: #fff;
 }
 
-.form__btn {
-  display: none;
+.mapActions {
+  text-align: center;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin: 0 2rem;
+  margin-bottom: 1.75rem;
 }
 
 /* MAP */
