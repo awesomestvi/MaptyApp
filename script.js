@@ -7,10 +7,21 @@ const inputDistance = document.querySelector(".form__input--distance");
 const inputDuration = document.querySelector(".form__input--duration");
 const inputCadence = document.querySelector(".form__input--cadence");
 const inputElevation = document.querySelector(".form__input--elevation");
+
 const btnThemeToggle = document.querySelector(".theme__toggle");
 const loaderContainer = document.querySelector(".loader__container");
 const reset = document.querySelector(".reset");
 const showAllMarkers = document.querySelector(".showAllMarkers");
+const errorContainer = document.querySelector(".error");
+
+//modal
+const modalOverlay = document.querySelector(".modal-overlay");
+const modal = document.querySelector(".modal");
+const modalContent = document.querySelector(".modal-content");
+const modalActionsContainer = document.querySelector(".modal-actions");
+const modalreset = document.querySelector(".modal--reset");
+const modalretry = document.querySelector(".modal--retry");
+const modalcancel = document.querySelector(".modal--cancel");
 
 class Workout {
   date = new Date();
@@ -80,20 +91,36 @@ class App {
     inputType.addEventListener("change", this._toggleElevationField);
     btnThemeToggle.addEventListener("click", this._changeTheme.bind(this));
     containerWorkouts.addEventListener("click", this._moveToPopup.bind(this));
-    reset.addEventListener("click", this._reset.bind(this));
+
+    reset.addEventListener("click", this._openModal);
     showAllMarkers.addEventListener("click", this._showAllMarkers.bind(this));
+
+    // prettier-ignore
+    modalActionsContainer.addEventListener("click", this._performModalActions.bind(this));
   }
 
   _getPosition() {
     if (navigator.geolocation)
       navigator.geolocation.getCurrentPosition(
         this._loadMap.bind(this),
-        this._errorGeoLocation
+        this._errorGeoLocation.bind(this)
       );
   }
 
   _errorGeoLocation() {
-    alert("Error getting your location!");
+    const html = `
+      <div class="modal-content">
+        <h1>Location access denied</h1>
+        <p>This app has been blocked from accessing your location.
+        This can happen if your browser's location services are turned off.
+        To access the application please allow location services and try again.</p>
+      </div>`;
+
+    modalContent.innerHTML = "";
+    modalreset.classList.add("hidden");
+    modalretry.classList.remove("hidden");
+    modalContent.insertAdjacentHTML("afterbegin", html);
+    this._openModal();
   }
 
   _loadMap(pos) {
@@ -109,23 +136,28 @@ class App {
     // Check loaclaStorage
     this._getLocalStorage();
 
-    loaderContainer.style.display = "none";
-  }
-
-  _activateThemeToggleBtn() {
-    btnThemeToggle.classList.remove("theme__toggle--hidden");
+    this._hideLoader();
   }
 
   _showForm(mapE) {
     this.#mapEvent = mapE;
-    form.classList.remove("hidden");
+    form.classList.remove("form--hidden");
     //inputDistance.focus();
   }
 
   _hideForm() {
     form.style.display = "none";
-    form.classList.add("hidden");
+    form.classList.add("form--hidden");
     setTimeout(() => (form.style.display = "grid"), 1000);
+  }
+
+  _hideLoader() {
+    loaderContainer.classList.add("hidden");
+  }
+
+  _toggleElevationField() {
+    inputElevation.closest(".form__row").classList.toggle("hidden");
+    inputCadence.closest(".form__row").classList.toggle("hidden");
   }
 
   _showActions(e) {
@@ -140,12 +172,9 @@ class App {
     e.target.classList.add("actions--hidden");
   }
 
-  _toggleElevationField() {
-    inputElevation.closest(".form__row").classList.toggle("form__row--hidden");
-    inputCadence.closest(".form__row").classList.toggle("form__row--hidden");
-  }
-
   _setTheme(curTheme) {
+    const theme = localStorage.getItem("theme");
+    if (theme) curTheme = theme;
     L.tileLayer(
       // prettier-ignore
       `https://{s}.tile.jawg.io/${this.#mapThemes[curTheme]}/{z}/{x}/{y}{r}.png?access-token={accessToken}`,
@@ -163,6 +192,7 @@ class App {
   _changeTheme() {
     // prettier-ignore
     this.#curTheme === this.#mapThemes.length - 1 ? this.#curTheme = 0 : this.#curTheme++;
+    localStorage.setItem("theme", this.#curTheme);
     this._setTheme(this.#curTheme);
   }
 
@@ -195,7 +225,9 @@ class App {
         !allPositive(distance, duration, cadence)
       ) {
         this._clearInputFields();
-        return alert("Enter Valid Number");
+        return this._throwError(
+          "Input fields only accepts positive numbers. No alphabets or special characters are allowed."
+        );
       }
 
       //coords, distance, duration, cadence
@@ -212,7 +244,9 @@ class App {
         !allPositive(distance, duration)
       ) {
         this._clearInputFields();
-        return alert("Enter Valid Number");
+        return this._throwError(
+          "Input fields only accepts positive numbers. No alphabets or special characters are allowed."
+        );
       }
 
       workout = new Cycling([lat, lng], distance, duration, elevation);
@@ -416,21 +450,17 @@ class App {
   }
 
   _showMapActionBtns() {
-    reset.classList.remove("btn--hidden");
-    showAllMarkers.classList.remove("btn--hidden");
+    reset.classList.remove("hidden");
+    showAllMarkers.classList.remove("hidden");
   }
 
   _hideMapActionBtns() {
-    reset.classList.add("btn--hidden");
-    showAllMarkers.classList.add("btn--hidden");
+    reset.classList.add("hidden");
+    showAllMarkers.classList.add("hidden");
   }
 
   _reset() {
-    const ans = prompt(
-      "Are you sure you want to delete all workouts?\n(Note: This action cannot be reversed)"
-    );
-
-    if (ans === null) return;
+    this._closeModal();
 
     const allWorkoutEls = document.querySelectorAll(".workout");
     allWorkoutEls.forEach((workoutEl) => workoutEl.remove());
@@ -451,6 +481,43 @@ class App {
     const bounds = [];
     this.#workouts.forEach((workout) => bounds.push(workout.coords));
     this.#map.fitBounds([bounds]);
+  }
+
+  _performModalActions(e) {
+    if (e.target === modalcancel) this._closeModal();
+    if (e.target === modalreset) this._reset();
+    if (e.target === modalretry) this._reload();
+  }
+
+  _openModal() {
+    modal.style.display = "flex";
+    modalOverlay.style.display = "block";
+  }
+
+  _closeModal() {
+    modal.style.display = "none";
+    modalOverlay.style.display = "none";
+  }
+
+  _reload() {
+    location.reload();
+  }
+
+  _activateThemeToggleBtn() {
+    btnThemeToggle.classList.remove("hidden");
+  }
+
+  _throwError(err) {
+    errorContainer.textContent = err;
+    errorContainer.classList.remove("error--hidden");
+
+    errorContainer.addEventListener("click", this._hideError);
+
+    //setTimeout(() => this._hideError(), 5000);
+  }
+
+  _hideError() {
+    errorContainer.classList.add("error--hidden");
   }
 }
 
