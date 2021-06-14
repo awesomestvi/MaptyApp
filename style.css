@@ -476,17 +476,17 @@ a:visited {
   }
 
   .error {
-    left: 10vw;
+    left: 30px;
     padding: 1rem 2rem;
-    transform: translateX(-6%);
+    transform: translateX(-15px);
   }
 
   .error--hidden {
-    transform: translate(-6%, -30%);
+    transform: translate(-15px, -30%);
   }
 
   .modal-body {
-    width: 340px;
-    height: 220px;
+    margin: 0 15px;
+    height: 210px;
   }
 }

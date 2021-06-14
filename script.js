@@ -513,7 +513,7 @@ class App {
 
     errorContainer.addEventListener("click", this._hideError);
 
-    //setTimeout(() => this._hideError(), 5000);
+    setTimeout(() => this._hideError(), 5000);
   }
 
   _hideError() {
