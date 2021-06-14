@@ -215,6 +215,8 @@ class App {
     const { lat, lng } = this.#mapEvent.latlng;
     let workout;
 
+    window.scrollTo(0, 0);
+
     // If workout is Running, create running object
     if (type === "running") {
       const cadence = +inputCadence.value;
@@ -270,8 +272,6 @@ class App {
 
     // Show Reset Btn
     this._showMapActionBtns();
-
-    window.scrollTo(0, 0);
   }
 
   _renderMarker(workout) {
