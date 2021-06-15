@@ -527,4 +527,12 @@ a:visited {
     margin: 15px 0 0 0;
     padding: 0 10px;
   }
+
+  .edit__btn i {
+    font-size: 22px;
+  }
+
+  .action__btn {
+    padding: 0 1rem;
+  }
 }
