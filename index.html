@@ -30,9 +30,21 @@
     <div class="sidebar">
       <div class="logo_container">
         <img src="logo.png" alt="Logo" class="logo" />
-        <button class="theme__toggle hidden btn">Toggle Theme</button>
       </div>
       <ul class="workouts">
+        <div class="filter--container">
+          <div class="filters">
+            <select class="btn sort">
+              <option selected disabled hidden>Sort By</option>
+              <option value="distance+asc">Distance ↑</option>
+              <option value="distance+des">Distance ↓</option>
+              <option value="duration+asc">Duration: ↑</option>
+              <option value="duration+des">Duration: ↓</option>
+            </select>
+            <button class="btn theme__toggle hidden">Change Map Theme</button>
+            <button class="btn showAllMarkers hidden">Show All Markers</button>
+          </div>
+        </div>
         <form class="form form--hidden">
           <div class="form__row">
             <label class="form__label">Type</label>
@@ -78,7 +90,6 @@
         </form>
         <li class="mapActions">
           <button class="btn reset reset_workout hidden">Reset</button>
-          <button class="btn showAllMarkers hidden">Show All Markers</button>
         </li>
       </ul>
     </div>

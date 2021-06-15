@@ -13,6 +13,7 @@ const loaderContainer = document.querySelector(".loader__container");
 const reset = document.querySelector(".reset");
 const showAllMarkers = document.querySelector(".showAllMarkers");
 const errorContainer = document.querySelector(".error");
+const sort = document.querySelector(".sort");
 
 //modal
 const modalOverlay = document.querySelector(".modal-overlay");
@@ -94,6 +95,7 @@ class App {
 
     reset.addEventListener("click", this._openModal);
     showAllMarkers.addEventListener("click", this._showAllMarkers.bind(this));
+    sort.addEventListener("change", this._sort.bind(this));
 
     // prettier-ignore
     modalActionsContainer.addEventListener("click", this._performModalActions.bind(this));
@@ -424,9 +426,22 @@ class App {
     this._showMapActionBtns();
   }
 
-  _editWorkout(workout) {
-    this._throwError("Editting a workout will be available soon!");
+  _sort(e) {
+    const sortValue = e.target.value.split("+");
+    if (sortValue[1] === "asc")
+      this.#workouts = this.#workouts.sort(
+        (a, b) => a[sortValue[0]] - b[sortValue[0]]
+      );
+
+    if (sortValue[1] === "des")
+      this.#workouts = this.#workouts.sort(
+        (a, b) => b[sortValue[0]] - a[sortValue[0]]
+      );
+    this._deleteAllWorkoutHTML();
+    this.#workouts.forEach((workout) => this._renderWorkout(workout));
   }
+
+  _editWorkout(workout) {}
 
   _deleteWorkout(workout) {
     const index = this.#workouts.indexOf(workout);
@@ -449,6 +464,11 @@ class App {
     workoutEl.remove();
   }
 
+  _deleteAllWorkoutHTML() {
+    const allWorkoutEls = document.querySelectorAll(".workout");
+    allWorkoutEls.forEach((workoutEl) => workoutEl.remove());
+  }
+
   _showMapActionBtns() {
     reset.classList.remove("hidden");
     showAllMarkers.classList.remove("hidden");
@@ -462,8 +482,7 @@ class App {
   _reset() {
     this._closeModal();
 
-    const allWorkoutEls = document.querySelectorAll(".workout");
-    allWorkoutEls.forEach((workoutEl) => workoutEl.remove());
+    this._deleteAllWorkoutHTML();
 
     this.#markers.forEach((marker) => {
       marker.remove();
@@ -490,13 +509,13 @@ class App {
   }
 
   _openModal() {
-    modal.style.display = "flex";
-    modalOverlay.style.display = "block";
+    modal.classList.remove("hidden");
+    modalOverlay.classList.remove("hidden");
   }
 
   _closeModal() {
-    modal.style.display = "none";
-    modalOverlay.style.display = "none";
+    modal.classList.add("hidden");
+    modalOverlay.classList.add("hidden");
   }
 
   _reload() {
