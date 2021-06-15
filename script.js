@@ -451,13 +451,13 @@ class App {
     this.#workouts = this.#workouts.sort((a, b) => {
       if (sortValue[1] === "asc") {
         this._throwMessage(
-          `The workouts are now sorted by ${sortValue[0]} in ascending order`
+          `The workouts are now sorted by ${sortValue[0]} in descending order`
         );
         return a[sortValue[0]] - b[sortValue[0]];
       }
       if (sortValue[1] === "des") {
         this._throwMessage(
-          `The workouts are now sorted by ${sortValue[0]} in descending order`
+          `The workouts are now sorted by ${sortValue[0]} in ascending order`
         );
         return b[sortValue[0]] - a[sortValue[0]];
       }
