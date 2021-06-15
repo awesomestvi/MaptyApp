@@ -10,6 +10,7 @@ const inputElevation = document.querySelector(".form__input--elevation");
 
 const btnThemeToggle = document.querySelector(".theme__toggle");
 const loaderContainer = document.querySelector(".loader__container");
+const loaderMsg = document.querySelector(".loader__msg");
 const reset = document.querySelector(".reset");
 const showAllMarkers = document.querySelector(".showAllMarkers");
 const errorContainer = document.querySelector(".error");
@@ -87,6 +88,9 @@ class App {
   constructor() {
     // Get Geolocation and load map
     this._getPosition();
+
+    // Change loader message
+    this._changeLoaderMsg();
 
     // Event Handlers
     form.addEventListener("submit", this._newWorkout.bind(this));
@@ -277,7 +281,7 @@ class App {
     this._showFilters();
 
     // Show Message
-    this._throwMessage(`A new workout has been added.`);
+    this._throwMessage(`A new ${workout.type} workout has been added.`);
 
     // Save to local storage
     this._setLocalStorage();
@@ -529,6 +533,8 @@ class App {
 
     localStorage.removeItem("workouts");
 
+    this._hideForm();
+
     this._hideMapActionBtns();
 
     this._hideFilters();
@@ -577,6 +583,27 @@ class App {
 
   _hideMessage() {
     errorContainer.classList.add("error--hidden");
+  }
+
+  _wait(seconds) {
+    return new Promise(function (resolve) {
+      setTimeout(resolve, seconds * 1000);
+    });
+  }
+
+  async _changeLoaderMsg(i = 0) {
+    const loaderMessages = [
+      "Fetching your location",
+      "Still fetching your location",
+      "You are a tough one to find",
+      "Are you sure you have your location services turned on?",
+      "Something is terribly wrong it should not take this long",
+    ];
+
+    loaderMsg.textContent = loaderMessages[i];
+    await this._wait(3);
+    i++;
+    if (i <= loaderMessages.length - 1) this._changeLoaderMsg(i);
   }
 }
 

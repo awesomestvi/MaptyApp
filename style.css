@@ -360,8 +360,15 @@ a:visited {
   background: var(--color-dark--1);
   z-index: 1002;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+.loader__msg {
+  font-size: 14px;
+  margin-top: 20px;
+  color: var(--color-brand--2);
 }
 
 .lds-ripple {
