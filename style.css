@@ -479,6 +479,7 @@ a:visited {
     left: 30px;
     padding: 1rem 2rem;
     transform: translateX(-15px);
+    min-width: calc(100vw - 30px);
   }
 
   .error--hidden {

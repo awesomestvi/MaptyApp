@@ -425,7 +425,7 @@ class App {
   }
 
   _editWorkout(workout) {
-    console.log(workout);
+    this._throwError("Editting a workout will be available soon!");
   }
 
   _deleteWorkout(workout) {
