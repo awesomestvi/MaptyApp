@@ -14,6 +14,7 @@ const reset = document.querySelector(".reset");
 const showAllMarkers = document.querySelector(".showAllMarkers");
 const errorContainer = document.querySelector(".error");
 const sort = document.querySelector(".sort");
+const filterContainer = document.querySelector(".filter--container");
 
 //modal
 const modalOverlay = document.querySelector(".modal-overlay");
@@ -144,7 +145,7 @@ class App {
   _showForm(mapE) {
     this.#mapEvent = mapE;
     form.classList.remove("form--hidden");
-    //inputDistance.focus();
+    inputDistance.focus();
   }
 
   _hideForm() {
@@ -269,11 +270,14 @@ class App {
     this._clearInputFields();
     this._hideForm();
 
-    // Save to local storage
-    this._setLocalStorage();
-
     // Show Reset Btn
     this._showMapActionBtns();
+
+    // Show Filters
+    this._showFilters();
+
+    // Save to local storage
+    this._setLocalStorage();
   }
 
   _renderMarker(workout) {
@@ -424,6 +428,9 @@ class App {
 
     // Show Reset Btn
     this._showMapActionBtns();
+
+    // Show Filters
+    this._showFilters();
   }
 
   _sort(e) {
@@ -441,12 +448,15 @@ class App {
     this.#workouts.forEach((workout) => this._renderWorkout(workout));
   }
 
-  _editWorkout(workout) {}
+  _editWorkout() {
+    this._throwError("Editting a workout will be available soon!");
+  }
 
   _deleteWorkout(workout) {
     const index = this.#workouts.indexOf(workout);
     if (this.#workouts.length === 1) this._hideMapActionBtns();
     this.#workouts.splice(index, 1);
+    this._hideFilters();
     this._deleteMarker(index);
     this._deleteWorkoutHTML(workout);
     this._setLocalStorage();
@@ -471,12 +481,22 @@ class App {
 
   _showMapActionBtns() {
     reset.classList.remove("hidden");
-    showAllMarkers.classList.remove("hidden");
   }
 
   _hideMapActionBtns() {
     reset.classList.add("hidden");
-    showAllMarkers.classList.add("hidden");
+  }
+
+  _showFilters() {
+    if (this.#workouts.length > 1) {
+      filterContainer.classList.remove("hidden");
+    }
+  }
+
+  _hideFilters() {
+    if (this.#workouts.length <= 1) {
+      filterContainer.classList.add("hidden");
+    }
   }
 
   _reset() {
@@ -494,6 +514,8 @@ class App {
     localStorage.removeItem("workouts");
 
     this._hideMapActionBtns();
+
+    this._hideFilters();
   }
 
   _showAllMarkers() {

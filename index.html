@@ -32,7 +32,7 @@
         <img src="logo.png" alt="Logo" class="logo" />
       </div>
       <ul class="workouts">
-        <div class="filter--container">
+        <div class="filter--container hidden">
           <div class="filters">
             <select class="btn sort">
               <option selected disabled hidden>Sort By</option>
@@ -41,8 +41,7 @@
               <option value="duration+asc">Duration: ↑</option>
               <option value="duration+des">Duration: ↓</option>
             </select>
-            <button class="btn theme__toggle hidden">Change Map Theme</button>
-            <button class="btn showAllMarkers hidden">Show All Markers</button>
+            <button class="btn showAllMarkers">Show All Markers</button>
           </div>
         </div>
         <form class="form form--hidden">
@@ -95,6 +94,7 @@
     </div>
     <div class="map_container">
       <div id="map"></div>
+      <button class="btn theme__toggle hidden">🌗</button>
     </div>
 
     <div class="loader__container">
