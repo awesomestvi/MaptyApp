@@ -55,6 +55,7 @@ a:visited {
   border-radius: 5px;
   z-index: 999;
   box-shadow: 0 3px 14px rgb(0 0 0 / 40%);
+  -webkit-appearance: none;
   cursor: pointer;
   transition: all 0.2s;
 }
@@ -513,7 +514,7 @@ a:visited {
 
   .filter--container {
     position: fixed;
-    width: 235px;
+    width: 250px;
     height: 60px;
     top: 300px;
     left: 120px;
