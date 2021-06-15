@@ -230,7 +230,7 @@ class App {
         !allPositive(distance, duration, cadence)
       ) {
         this._clearInputFields();
-        return this._throwError(
+        return this._throwMessage(
           "Input fields only accepts positive numbers. No alphabets or special characters are allowed."
         );
       }
@@ -249,7 +249,7 @@ class App {
         !allPositive(distance, duration)
       ) {
         this._clearInputFields();
-        return this._throwError(
+        return this._throwMessage(
           "Input fields only accepts positive numbers. No alphabets or special characters are allowed."
         );
       }
@@ -275,6 +275,9 @@ class App {
 
     // Show Filters
     this._showFilters();
+
+    // Show Message
+    this._throwMessage(`A new workout has been added.`);
 
     // Save to local storage
     this._setLocalStorage();
@@ -395,7 +398,10 @@ class App {
   }
 
   _loadWorkouts(workouts) {
-    if (!workouts || workouts.length === 0) return;
+    if (!workouts || workouts.length === 0) {
+      this._throwMessage(`Welcome Back! You have no saved workouts.`);
+      return;
+    }
 
     workouts.forEach((workout) => {
       if (workout.type === "running") {
@@ -431,25 +437,34 @@ class App {
 
     // Show Filters
     this._showFilters();
+
+    // Show Message
+    this._throwMessage(`Welcome Back! All your saved workouts are now loaded.`);
   }
 
   _sort(e) {
     const sortValue = e.target.value.split("+");
-    if (sortValue[1] === "asc")
-      this.#workouts = this.#workouts.sort(
-        (a, b) => a[sortValue[0]] - b[sortValue[0]]
-      );
+    this.#workouts = this.#workouts.sort((a, b) => {
+      if (sortValue[1] === "asc") {
+        this._throwMessage(
+          `The workouts are now sorted by ${sortValue[0]} in ascending order`
+        );
+        return a[sortValue[0]] - b[sortValue[0]];
+      }
+      if (sortValue[1] === "des") {
+        this._throwMessage(
+          `The workouts are now sorted by ${sortValue[0]} in descending order`
+        );
+        return b[sortValue[0]] - a[sortValue[0]];
+      }
+    });
 
-    if (sortValue[1] === "des")
-      this.#workouts = this.#workouts.sort(
-        (a, b) => b[sortValue[0]] - a[sortValue[0]]
-      );
     this._deleteAllWorkoutHTML();
     this.#workouts.forEach((workout) => this._renderWorkout(workout));
   }
 
   _editWorkout() {
-    this._throwError("Editting a workout will be available soon!");
+    this._throwMessage("Editting a workout will be available soon!");
   }
 
   _deleteWorkout(workout) {
@@ -459,6 +474,7 @@ class App {
     this._hideFilters();
     this._deleteMarker(index);
     this._deleteWorkoutHTML(workout);
+    this._throwMessage(`Workout "${workout.description}" has been deleted.`);
     this._setLocalStorage();
   }
 
@@ -516,6 +532,8 @@ class App {
     this._hideMapActionBtns();
 
     this._hideFilters();
+
+    this._throwMessage(`All the workouts are now deleted.`);
   }
 
   _showAllMarkers() {
@@ -548,16 +566,16 @@ class App {
     btnThemeToggle.classList.remove("hidden");
   }
 
-  _throwError(err) {
-    errorContainer.textContent = err;
+  _throwMessage(msg) {
+    errorContainer.textContent = msg;
     errorContainer.classList.remove("error--hidden");
 
-    errorContainer.addEventListener("click", this._hideError);
+    errorContainer.addEventListener("click", this._hideMessage);
 
-    setTimeout(() => this._hideError(), 5000);
+    setTimeout(() => this._hideMessage(), 5000);
   }
 
-  _hideError() {
+  _hideMessage() {
     errorContainer.classList.add("error--hidden");
   }
 }
