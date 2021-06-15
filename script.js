@@ -77,6 +77,7 @@ class Cycling extends Workout {
 }
 
 class App {
+  #i = 0;
   #map;
   #mapEvent;
   #workouts = [];
@@ -140,7 +141,7 @@ class App {
 
     this._activateThemeToggleBtn();
 
-    // Check loaclaStorage
+    // Check localStorage
     this._getLocalStorage();
 
     this._hideLoader();
@@ -159,6 +160,7 @@ class App {
   }
 
   _hideLoader() {
+    this.#i = -1;
     loaderContainer.classList.add("hidden");
   }
 
@@ -186,8 +188,6 @@ class App {
       // prettier-ignore
       `https://{s}.tile.jawg.io/${this.#mapThemes[curTheme]}/{z}/{x}/{y}{r}.png?access-token={accessToken}`,
       {
-        // attribution:
-        //   '<a href="http://jawg.io" title="Tiles Courtesy of Jawg Maps" target="_blank">&copy; <b>Jawg</b>Maps</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         minZoom: 2,
         maxZoom: 20,
         accessToken:
@@ -403,7 +403,7 @@ class App {
 
   _loadWorkouts(workouts) {
     if (!workouts || workouts.length === 0) {
-      this._throwMessage(`Welcome Back! You have no saved workouts.`);
+      this._throwMessage(`Welcome to Mapty App!`);
       return;
     }
 
@@ -467,7 +467,7 @@ class App {
     this.#workouts.forEach((workout) => this._renderWorkout(workout));
   }
 
-  _editWorkout() {
+  _editWorkout(workout) {
     this._throwMessage("Editting a workout will be available soon!");
   }
 
@@ -591,19 +591,28 @@ class App {
     });
   }
 
-  async _changeLoaderMsg(i = 0) {
+  async _changeLoaderMsg() {
     const loaderMessages = [
-      "Fetching your location",
-      "Still fetching your location",
-      "You are a tough one to find",
+      "Fetching your location...",
+      "Still fetching your location...",
+      "You are a tough one to find...",
+      "Something is terribly wrong it should not take this long...",
       "Are you sure you have your location services turned on?",
-      "Something is terribly wrong it should not take this long",
     ];
 
-    loaderMsg.textContent = loaderMessages[i];
-    await this._wait(3);
-    i++;
-    if (i <= loaderMessages.length - 1) this._changeLoaderMsg(i);
+    loaderMsg.textContent = loaderMessages[this.#i];
+    await this._wait(5);
+
+    if (this.#i === -1) return;
+
+    this.#i++;
+
+    if (this.#i <= loaderMessages.length - 1) {
+      this._changeLoaderMsg(this.#i);
+    } else {
+      await this._wait(3);
+      this._errorGeoLocation();
+    }
   }
 }
 
