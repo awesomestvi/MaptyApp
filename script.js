@@ -78,6 +78,7 @@ class Cycling extends Workout {
 
 class App {
   #i = 0;
+  #editting = { flag: false, id: false };
   #map;
   #mapEvent;
   #workouts = [];
@@ -165,8 +166,15 @@ class App {
   }
 
   _toggleElevationField() {
-    inputElevation.closest(".form__row").classList.toggle("hidden");
-    inputCadence.closest(".form__row").classList.toggle("hidden");
+    if (inputType.value === "running") {
+      inputCadence.closest(".form__row").classList.remove("hidden");
+      inputElevation.closest(".form__row").classList.add("hidden");
+    }
+
+    if (inputType.value === "cycling") {
+      inputElevation.closest(".form__row").classList.remove("hidden");
+      inputCadence.closest(".form__row").classList.add("hidden");
+    }
   }
 
   _showActions(e) {
@@ -240,7 +248,12 @@ class App {
       }
 
       //coords, distance, duration, cadence
-      workout = new Running([lat, lng], distance, duration, cadence);
+      if (this.#editting.flag)
+        //prettier-ignore
+        workout = new Running([lat, lng], distance, duration, cadence, this.#editting.id);
+
+      if (!this.#editting.flag)
+        workout = new Running([lat, lng], distance, duration, cadence);
     }
 
     // If workout is Cycling, create cycling object
@@ -258,7 +271,12 @@ class App {
         );
       }
 
-      workout = new Cycling([lat, lng], distance, duration, elevation);
+      if (this.#editting.flag)
+        //prettier-ignore
+        workout = new Cycling([lat, lng], distance, duration, elevation, this.#editting.id);
+
+      if (!this.#editting.flag)
+        workout = new Cycling([lat, lng], distance, duration, elevation);
     }
 
     // Add new Onject to workout array
@@ -281,10 +299,36 @@ class App {
     this._showFilters();
 
     // Show Message
-    this._throwMessage(`A new ${workout.type} workout has been added.`);
+    if (!this.#editting.flag)
+      this._throwMessage(`A new ${workout.type} workout has been added.`);
+
+    if (this.#editting.flag) this._throwMessage(`Workout has been edited.`);
 
     // Save to local storage
     this._setLocalStorage();
+
+    // Reset Edit Flag
+    this.#editting.flag = false;
+  }
+
+  _editWorkout(workout) {
+    this.#editting.flag = true;
+    this.#editting.id = workout.id;
+    this._showForm({
+      latlng: { lat: workout.coords[0], lng: workout.coords[1] },
+    });
+    inputDistance.value = workout.distance;
+    inputDuration.value = workout.duration;
+    inputType.value = workout.type;
+
+    if (workout.type === "running") {
+      inputCadence.value = workout.cadence;
+    }
+
+    if (workout.type === "cycling") {
+      inputElevation.value = workout.elevation;
+    }
+    this._deleteWorkout(workout, true);
   }
 
   _renderMarker(workout) {
@@ -467,18 +511,15 @@ class App {
     this.#workouts.forEach((workout) => this._renderWorkout(workout));
   }
 
-  _editWorkout(workout) {
-    this._throwMessage("Editting a workout will be available soon!");
-  }
-
-  _deleteWorkout(workout) {
+  _deleteWorkout(workout, editting = false) {
     const index = this.#workouts.indexOf(workout);
     if (this.#workouts.length === 1) this._hideMapActionBtns();
     this.#workouts.splice(index, 1);
     this._hideFilters();
     this._deleteMarker(index);
     this._deleteWorkoutHTML(workout);
-    this._throwMessage(`Workout "${workout.description}" has been deleted.`);
+    if (!editting)
+      this._throwMessage(`Workout "${workout.description}" has been deleted.`);
     this._setLocalStorage();
   }
 
