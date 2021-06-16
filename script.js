@@ -32,11 +32,12 @@ class Workout {
   //prettier-ignore
   #months = ['January','February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-  constructor(coords, distance, duration, id = this.id) {
+  constructor(coords, distance, duration, id = this.id, date = this.date) {
     this.coords = coords;
     this.distance = distance;
     this.duration = duration;
     this.id = id;
+    this.date = date;
   }
 
   _setDescription() {
@@ -49,8 +50,8 @@ class Workout {
 class Running extends Workout {
   type = "running";
 
-  constructor(coords, distance, duration, cadence, id) {
-    super(coords, distance, duration, id);
+  constructor(coords, distance, duration, cadence, id, date) {
+    super(coords, distance, duration, id, date);
     this.cadence = cadence;
     this._calcPace();
     this._setDescription();
@@ -64,8 +65,8 @@ class Running extends Workout {
 class Cycling extends Workout {
   type = "cycling";
 
-  constructor(coords, distance, duration, elevation, id) {
-    super(coords, distance, duration, id);
+  constructor(coords, distance, duration, elevation, id, date) {
+    super(coords, distance, duration, id, date);
     this.elevation = elevation;
     this._calcSpeed();
     this._setDescription();
@@ -78,7 +79,7 @@ class Cycling extends Workout {
 
 class App {
   #i = 0;
-  #editting = { flag: false, id: false };
+  #editting = { flag: false, id: false, date: false };
   #map;
   #mapEvent;
   #workouts = [];
@@ -106,6 +107,9 @@ class App {
 
     // prettier-ignore
     modalActionsContainer.addEventListener("click", this._performModalActions.bind(this));
+
+    // unload
+    window.addEventListener("beforeunload", this._unsavedChanges);
   }
 
   _getPosition() {
@@ -250,7 +254,7 @@ class App {
       //coords, distance, duration, cadence
       if (this.#editting.flag)
         //prettier-ignore
-        workout = new Running([lat, lng], distance, duration, cadence, this.#editting.id);
+        workout = new Running([lat, lng], distance, duration, cadence, this.#editting.id, this.#editting.date);
 
       if (!this.#editting.flag)
         workout = new Running([lat, lng], distance, duration, cadence);
@@ -273,7 +277,7 @@ class App {
 
       if (this.#editting.flag)
         //prettier-ignore
-        workout = new Cycling([lat, lng], distance, duration, elevation, this.#editting.id);
+        workout = new Cycling([lat, lng], distance, duration, elevation, this.#editting.id, this.#editting.date);
 
       if (!this.#editting.flag)
         workout = new Cycling([lat, lng], distance, duration, elevation);
@@ -314,6 +318,7 @@ class App {
   _editWorkout(workout) {
     this.#editting.flag = true;
     this.#editting.id = workout.id;
+    this.#editting.date = new Date(workout.date);
     this._showForm({
       latlng: { lat: workout.coords[0], lng: workout.coords[1] },
     });
@@ -458,7 +463,8 @@ class App {
           workout.distance,
           workout.duration,
           workout.cadence,
-          workout.id
+          workout.id,
+          new Date(workout.date)
         );
         this.#workouts.push(running);
       }
@@ -469,7 +475,8 @@ class App {
           workout.distance,
           workout.duration,
           workout.elevation,
-          workout.id
+          workout.id,
+          new Date(workout.date)
         );
         this.#workouts.push(cycling);
       }
@@ -487,7 +494,11 @@ class App {
     this._showFilters();
 
     // Show Message
-    this._throwMessage(`Welcome Back! All your saved workouts are now loaded.`);
+    this._throwMessage(
+      `Welcome Back! You have ${workouts.length} saved ${
+        workouts.length === 1 ? "workout" : "workouts"
+      }.`
+    );
   }
 
   _sort(e) {
@@ -495,15 +506,15 @@ class App {
     this.#workouts = this.#workouts.sort((a, b) => {
       if (sortValue[1] === "asc") {
         this._throwMessage(
-          `The workouts are now sorted by ${sortValue[0]} in descending order`
-        );
-        return a[sortValue[0]] - b[sortValue[0]];
-      }
-      if (sortValue[1] === "des") {
-        this._throwMessage(
           `The workouts are now sorted by ${sortValue[0]} in ascending order`
         );
         return b[sortValue[0]] - a[sortValue[0]];
+      }
+      if (sortValue[1] === "des") {
+        this._throwMessage(
+          `The workouts are now sorted by ${sortValue[0]} in descending order`
+        );
+        return a[sortValue[0]] - b[sortValue[0]];
       }
     });
 
@@ -653,6 +664,13 @@ class App {
     } else {
       await this._wait(3);
       this._errorGeoLocation();
+    }
+  }
+
+  _unsavedChanges(e) {
+    if (!form.classList.contains("form--hidden")) {
+      e.preventDefault();
+      e.returnValue = "";
     }
   }
 }
