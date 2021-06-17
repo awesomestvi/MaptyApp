@@ -40,12 +40,32 @@ a:visited {
 /* SIDEBAR */
 .sidebar {
   flex-basis: 50rem;
-  padding: 3rem 0;
+  padding-top: 3rem;
   display: flex;
   flex-direction: column;
   background: #232526;
   background: -webkit-linear-gradient(to right top, #414345, #232526);
   background: linear-gradient(to right top, #414345, #232526);
+}
+
+.welcome__message {
+  padding: 0 3rem;
+  text-align: center;
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 38vh;
+  margin: 60px 0;
+}
+
+.welcome__message h1 {
+  margin-bottom: 1rem;
+}
+
+.welcome__message p {
+  margin-bottom: 1rem;
 }
 
 .btn {
@@ -56,7 +76,7 @@ a:visited {
   padding: 8px 15px;
   border-radius: 5px;
   z-index: 999;
-  /* box-shadow: 0 3px 14px rgb(0 0 0 / 40%); */
+  box-shadow: 0 3px 14px rgb(0 0 0 / 40%);
   -webkit-appearance: none;
   cursor: pointer;
   transition: all 0.2s;
@@ -148,6 +168,10 @@ a:visited {
   margin-right: 1px;
 }
 
+.workout__weather--details {
+  transform: translateY(-9px);
+}
+
 .workout__location,
 .workout__weather--details.otherinfo {
   font-style: normal;
@@ -193,6 +217,7 @@ a:visited {
   gap: 0rem 1rem;
   font-size: 16px;
   z-index: 1;
+  transition: all 0.2s;
 }
 
 .action__btn {
@@ -268,7 +293,7 @@ a:visited {
 .mapActions,
 .filters {
   text-align: center;
-  margin: 0 2rem 1.75rem 2rem;
+  margin-bottom: 1.75rem;
   display: flex;
 }
 
@@ -277,9 +302,12 @@ a:visited {
   flex: 1;
 }
 
+.mapActions {
+  margin-top: 2rem;
+}
+
 .filters {
   gap: 2rem;
-  margin-top: 1rem;
 }
 
 .filters select:focus {
@@ -364,6 +392,7 @@ a:visited {
   display: flex;
   align-items: center;
   justify-content: center;
+  filter: drop-shadow(2px 4px 6px black);
 }
 
 .modal-body {
@@ -470,6 +499,7 @@ a:visited {
   cursor: pointer;
   transform: translateX(-42%);
   text-align: center;
+  filter: drop-shadow(2px 4px 6px black);
 
   transition: all 0.5s;
 }
@@ -508,6 +538,10 @@ a:visited {
     margin-top: 300px;
   }
 
+  .welcome__message {
+    font-size: 12px;
+  }
+
   .logo_container {
     position: fixed;
     top: 300px;
@@ -529,14 +563,22 @@ a:visited {
     margin: 0;
   }
 
+  .mapActions {
+    padding: 0 1.5rem;
+  }
+
+  .form__label {
+    font-size: 1.2rem;
+    font-weight: 400;
+    text-align: right;
+    padding-right: 7px;
+    flex: 0 0 43%;
+  }
+
   .workouts {
     height: auto;
     margin-top: 60px;
     padding: 0 1.5rem;
-  }
-
-  .workout__weather--details {
-    transform: translateY(-9px);
   }
 
   .workout__header--container {
@@ -603,5 +645,12 @@ a:visited {
 
   .action__btn {
     padding: 0 1rem;
+  }
+}
+
+@media screen and (min-width: 768px) {
+  .filter--container,
+  .mapActions {
+    padding: 0 3rem;
   }
 }

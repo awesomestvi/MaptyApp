@@ -18,20 +18,26 @@
       <div class="logo_container">
         <img src="logo.png" alt="Logo" class="logo" />
       </div>
-      <div></div>
-      <ul class="workouts">
-        <div class="filter--container hidden">
-          <div class="filters">
-            <select class="btn sort">
-              <option selected disabled hidden>Sort By</option>
-              <option value="distance+asc">Distance ↑</option>
-              <option value="distance+des">Distance ↓</option>
-              <option value="duration+asc">Duration: ↑</option>
-              <option value="duration+des">Duration: ↓</option>
-            </select>
-            <button class="btn showAllMarkers">Show All Markers</button>
-          </div>
+      <div class="filter--container hidden">
+        <div class="filters">
+          <select class="btn sort">
+            <option selected disabled>Sort By</option>
+            <option value="distance+asc">Distance: ↑</option>
+            <option value="distance+des">Distance: ↓</option>
+            <option value="duration+asc">Duration: ↑</option>
+            <option value="duration+des">Duration: ↓</option>
+          </select>
+          <button class="btn showAllMarkers">Show All Workouts</button>
         </div>
+      </div>
+      <div class="welcome__message">
+        <h1>Welcome to Mapty App!</h1>
+        <p>Mapty app is a small go-to workout tracker which you can use to track your cycling and running workouts and store them on the map.</p>
+        <p>These workouts are shown in easy to use design, with weather and location information from the place and time of your workout.</p>
+        <p>All these workout informations are stored on your device and no one else has access to these except you.</p>
+        <p>So track your workout by clicking on the map...</p>
+      </div>
+      <ul class="workouts">
         <form class="form form--hidden">
           <div class="form__row">
             <label class="form__label">Type</label>
@@ -59,10 +65,10 @@
           <div></div>
           <button type="submit" class="form__btn btn">Submit</button>
         </form>
-        <li class="mapActions">
-          <button class="btn reset reset_workout hidden">Reset</button>
-        </li>
       </ul>
+      <div class="mapActions">
+        <button class="btn reset reset_workout hidden">Reset</button>
+      </div>
     </div>
     <div class="map_container">
       <div id="map"></div>

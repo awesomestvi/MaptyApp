@@ -17,6 +17,7 @@ const showAllMarkers = document.querySelector('.showAllMarkers');
 const errorContainer = document.querySelector('.error');
 const sort = document.querySelector('.sort');
 const filterContainer = document.querySelector('.filter--container');
+const welcomeMessage = document.querySelector('.welcome__message');
 
 //modal
 const modalOverlay = document.querySelector('.modal-overlay');
@@ -91,7 +92,7 @@ class App {
   #mapEvent;
   #workouts = [];
   #markers = [];
-  #mapThemes = ['jawg-streets', 'jawg-dark', 'jawg-matrix'];
+  #mapThemes = ['jawg-dark', 'jawg-streets', 'jawg-matrix'];
   #curTheme = 0;
   #zoomLevel = 14;
   #mylocation;
@@ -115,6 +116,7 @@ class App {
     sort.addEventListener('change', this._sort.bind(this));
 
     modalActionsContainer.addEventListener('click', this._performModalActions.bind(this));
+    errorContainer.addEventListener('click', this._hideMessage);
 
     // unload
     window.addEventListener('beforeunload', this._unsavedChanges);
@@ -163,11 +165,16 @@ class App {
       animate: true,
       duration: 0.5,
     });
+
+    this._getLocationAndWeather(latitude, longitude).finally(() => {
+      this._throwMessage(`Current Location: ${this.#editting.location}`);
+    });
   }
 
   _showForm(mapE) {
     this.#mapEvent = mapE;
     const {lat, lng} = this.#mapEvent.latlng;
+    this._hideWelcomeMessage();
     this._getLocationAndWeather(lat, lng).finally(() => {
       form.classList.remove('form--hidden');
       inputDistance.focus();
@@ -277,7 +284,6 @@ class App {
 
     // Add new Onject to workout array
     this.#workouts.push(workout);
-    console.log(this.#workouts);
 
     // Render workout on the map as marker
     this._renderMarker(workout);
@@ -311,7 +317,9 @@ class App {
     return Promise.all([this._getLocationDetails(lat, lng), this._getLocationWeather(lat, lng)])
       .then(([res1, res2]) => {
         const {road, suburb, city, country} = res1.address;
-        this.#editting.location = {road, suburb, city, country};
+        this.#editting.location = Object.values({road, suburb, city, country})
+          .filter(l => l !== undefined)
+          .join(', ');
         this.#editting.weather = {...res2.main, ...res2.weather[0]};
       })
       .catch(err => {});
@@ -398,7 +406,9 @@ class App {
       <div class="workout__header--container">
         <div class="workout_header">
           <h2 class="workout__title">${workout.description}</h2>
-          <address class="workout__location">${!workout.location.road ? '' : workout.location.road + ', '}${workout.location.suburb}, ${workout.location.city}, ${workout.location.country}</address>
+          <address class="workout__location">
+            ${workout.location}
+          </address>
         </div>
         <div class="workout__weather">
           <div class="workout__weather--details temp">
@@ -489,9 +499,10 @@ class App {
 
   _loadWorkouts(workouts) {
     if (!workouts || workouts.length === 0) {
-      this._throwMessage(`Welcome to Mapty App!`);
       return;
     }
+
+    this._hideWelcomeMessage();
 
     workouts.forEach(workout => {
       if (workout.type === 'running') {
@@ -541,6 +552,7 @@ class App {
     const index = this.#workouts.indexOf(workout);
     if (this.#workouts.length === 1) this._hideMapActionBtns();
     this.#workouts.splice(index, 1);
+    if (this.#workouts.length === 0) this._showWelcomeMessage();
     this._hideFilters();
     this._deleteMarker(index);
     this._deleteWorkoutHTML(workout);
@@ -603,6 +615,8 @@ class App {
 
     this._hideFilters();
 
+    this._showWelcomeMessage();
+
     this._throwMessage(`All the workouts are now deleted.`);
   }
 
@@ -640,9 +654,11 @@ class App {
     errorContainer.textContent = msg;
     errorContainer.classList.remove('error--hidden');
 
-    errorContainer.addEventListener('click', this._hideMessage);
-
-    setTimeout(() => this._hideMessage(), 5000);
+    new Promise(resolve => {
+      setTimeout(() => {
+        resolve(this._hideMessage());
+      }, 3000);
+    });
   }
 
   _hideMessage() {
@@ -684,6 +700,14 @@ class App {
       e.preventDefault();
       e.returnValue = '';
     }
+  }
+
+  _hideWelcomeMessage() {
+    welcomeMessage.classList.add('hidden');
+  }
+
+  _showWelcomeMessage() {
+    welcomeMessage.classList.remove('hidden');
   }
 }
 
