@@ -4,19 +4,22 @@
     <meta charset="UTF-8" />
     <!-- prettier-ignore -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="theme-color" content="#2d3439" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <link rel="shortcut icon" type="image/png" href="/icon.png" />
     <link
+      defer
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap"
       rel="stylesheet"
     />
     <link
+      defer
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
       integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
       crossorigin=""
     />
-    <link rel="stylesheet" href="style.css" />
+    <link defer rel="stylesheet" href="style.css" />
     <script
       defer
       src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
@@ -85,7 +88,7 @@
             />
           </div>
           <div></div>
-          <button type="submit" class="form__btn btn hidden">Submit</button>
+          <button type="submit" class="form__btn btn">Submit</button>
         </form>
         <li class="mapActions">
           <button class="btn reset reset_workout hidden">Reset</button>
@@ -94,7 +97,9 @@
     </div>
     <div class="map_container">
       <div id="map"></div>
-      <button class="btn theme__toggle hidden">🌗</button>
+      <button title="Change Map's Theme" class="btn theme__toggle hidden">
+        🌗
+      </button>
     </div>
 
     <div class="loader__container">

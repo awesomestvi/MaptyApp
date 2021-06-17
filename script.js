@@ -29,13 +29,19 @@ const modalcancel = document.querySelector(".modal--cancel");
 class Workout {
   date = new Date();
   id = (Date.now() + "").slice(-10);
+  location;
+  weather;
+
   //prettier-ignore
   #months = ['January','February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-  constructor(coords, distance, duration, id = this.id, date = this.date) {
+  //prettier-ignore
+  constructor(coords, distance, duration, location = this.location, weather = this.weather, id = this.id, date = this.date) {
     this.coords = coords;
     this.distance = distance;
     this.duration = duration;
+    this.location = location;
+    this.weather = weather;
     this.id = id;
     this.date = date;
   }
@@ -50,8 +56,9 @@ class Workout {
 class Running extends Workout {
   type = "running";
 
-  constructor(coords, distance, duration, cadence, id, date) {
-    super(coords, distance, duration, id, date);
+  //prettier-ignore
+  constructor(coords, distance, duration, cadence, location, weather, id, date) {
+    super(coords, distance, duration, location, weather, id, date);
     this.cadence = cadence;
     this._calcPace();
     this._setDescription();
@@ -65,8 +72,9 @@ class Running extends Workout {
 class Cycling extends Workout {
   type = "cycling";
 
-  constructor(coords, distance, duration, elevation, id, date) {
-    super(coords, distance, duration, id, date);
+  //prettier-ignore
+  constructor(coords, distance, duration, elevation, location, weather, id, date) {
+    super(coords, distance, duration, location, weather, id, date);
     this.elevation = elevation;
     this._calcSpeed();
     this._setDescription();
@@ -79,7 +87,13 @@ class Cycling extends Workout {
 
 class App {
   #i = 0;
-  #editting = { flag: false, id: false, date: false };
+  #editting = {
+    flag: false,
+    id: false,
+    date: false,
+    location: false,
+    weather: false,
+  };
   #map;
   #mapEvent;
   #workouts = [];
@@ -154,8 +168,11 @@ class App {
 
   _showForm(mapE) {
     this.#mapEvent = mapE;
-    form.classList.remove("form--hidden");
-    inputDistance.focus();
+    const { lat, lng } = this.#mapEvent.latlng;
+    this._getLocationAndWeather(lat, lng).finally(() => {
+      form.classList.remove("form--hidden");
+      inputDistance.focus();
+    });
   }
 
   _hideForm() {
@@ -254,10 +271,11 @@ class App {
       //coords, distance, duration, cadence
       if (this.#editting.flag)
         //prettier-ignore
-        workout = new Running([lat, lng], distance, duration, cadence, this.#editting.id, this.#editting.date);
+        workout = new Running([lat, lng], distance, duration, cadence, this.#editting.location, this.#editting.weather, this.#editting.id, this.#editting.date);
 
       if (!this.#editting.flag)
-        workout = new Running([lat, lng], distance, duration, cadence);
+        //prettier-ignore
+        workout = new Running([lat, lng], distance, duration, cadence, this.#editting.location, this.#editting.weather);
     }
 
     // If workout is Cycling, create cycling object
@@ -277,14 +295,16 @@ class App {
 
       if (this.#editting.flag)
         //prettier-ignore
-        workout = new Cycling([lat, lng], distance, duration, elevation, this.#editting.id, this.#editting.date);
+        workout = new Cycling([lat, lng], distance, duration, elevation, this.#editting.location, this.#editting.weather, this.#editting.id, this.#editting.date);
 
       if (!this.#editting.flag)
-        workout = new Cycling([lat, lng], distance, duration, elevation);
+        //prettier-ignore
+        workout = new Cycling([lat, lng], distance, duration, elevation, this.#editting.location, this.#editting.weather);
     }
 
     // Add new Onject to workout array
     this.#workouts.push(workout);
+    console.log(this.#workouts);
 
     // Render workout on the map as marker
     this._renderMarker(workout);
@@ -315,10 +335,50 @@ class App {
     this.#editting.flag = false;
   }
 
+  _getLocationAndWeather(lat, lng) {
+    return Promise.all([
+      this._getLocationDetails(lat, lng),
+      this._getLocationWeather(lat, lng),
+    ])
+      .then(([res1, res2]) => {
+        const { road, suburb, city, country } = res1.address;
+        this.#editting.location = { road, suburb, city, country };
+        this.#editting.weather = { ...res2.main, ...res2.weather[0] };
+      })
+      .catch((err) => {});
+  }
+
+  async _getLocationDetails(lat, lng) {
+    try {
+      //prettier-ignore
+      const res = await fetch(`https://eu1.locationiq.com/v1/reverse.php?key=pk.9372d4a1eb6c7817eb360b4776cd13d8&lat=${lat}&lon=${lng}&format=json`);
+      //prettier-ignore
+      if (!res.ok) throw new Error(`Could not get location details of the your workout [${res.status}]`);
+      return await res.json();
+    } catch (err) {
+      this._throwMessage(err);
+    }
+  }
+
+  async _getLocationWeather(lat, lng) {
+    try {
+      //prettier-ignore
+      const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&units=metric&appid=908a9045b7ece945f62d6b7c11325dae`);
+      //prettier-ignore
+      if (!res.ok) throw new Error(`Could not get the weather details of your workout location [${res.status}]`);
+      return await res.json();
+    } catch (err) {
+      this._throwMessage(err);
+    }
+  }
+
   _editWorkout(workout) {
     this.#editting.flag = true;
     this.#editting.id = workout.id;
     this.#editting.date = new Date(workout.date);
+    this.#editting.location = workout.location;
+    this.#editting.weather = workout.weather;
+
     this._showForm({
       latlng: { lat: workout.coords[0], lng: workout.coords[1] },
     });
@@ -365,8 +425,16 @@ class App {
       <button title="Edit Workout" class="btn action__btn edit__btn"><i>✎</i></button>
       <button title="Delete Workout" class="btn action__btn delete__btn"><i>⨯</i></button>
     </div>
+    <div class="workout__header">
       <h2 class="workout__title">${workout.description}</h2>
-      <div class="workout__details">
+      <address class="location__container">${
+        !workout.location.road ? "" : workout.location.road + ", "
+      }${workout.location.suburb}, ${workout.location.city}, ${
+      workout.location.country
+    }
+      </address>
+      </div>
+      <div title="Distance" class="workout__details">
         <span class="workout__icon">${
           workout.type === "running" ? "🏃🏻" : "🚴🏼"
         }</span>
@@ -375,7 +443,7 @@ class App {
           workout.distance > 1 ? "kms" : "km"
         }</span>
       </div>
-      <div class="workout__details">
+      <div title="Duration" class="workout__details">
         <span class="workout__icon">⏱</span>
         <span class="workout__value">${workout.duration}</span>
         <span class="workout__unit">min</span>
@@ -383,33 +451,50 @@ class App {
 
     if (workout.type === "running") {
       html += `
-        <div class="workout__details">
+        <div title="Pace" class="workout__details">
           <span class="workout__icon">⚡️</span>
           <span class="workout__value">${workout.pace.toFixed(1)}</span>
           <span class="workout__unit">min/km</span>
         </div>
-        <div class="workout__details">
+        <div title="Cadence" class="workout__details">
           <span class="workout__icon">🦶🏼</span>
           <span class="workout__value">${workout.cadence}</span>
           <span class="workout__unit">spm</span>
         </div>
-      </li>`;
+      `;
     }
 
     if (workout.type === "cycling") {
       html += `
-        <div class="workout__details">
+        <div title="Speed" class="workout__details">
           <span class="workout__icon">⚡️</span>
           <span class="workout__value">${workout.speed.toFixed(1)}</span>
           <span class="workout__unit">km/h</span>
         </div>
-        <div class="workout__details">
+        <div title="Elevation Gain" class="workout__details">
           <span class="workout__icon">⛰</span>
           <span class="workout__value">${workout.elevation}</span>
           <span class="workout__unit">m</span>
         </div>
-      </li>`;
+      `;
     }
+
+    html += `
+    <div class="workout__footer">
+      <div class="workout__details temp">
+        ${Math.trunc(workout.weather.temp)}℃
+      </div>
+      <div class="workout__details feelslike">
+        Feels like: ${Math.trunc(workout.weather.feels_like)}℃
+      </div>
+      <div class="workout__details high">
+          High: ${Math.trunc(workout.weather.temp_max)}℃
+      </div>
+      <div class="workout__details low">
+        Low: ${Math.trunc(workout.weather.temp_min)}℃
+      </div>
+    </div>
+  </li>`;
 
     form.insertAdjacentHTML("afterend", html);
 
@@ -463,6 +548,8 @@ class App {
           workout.distance,
           workout.duration,
           workout.cadence,
+          workout.location,
+          workout.weather,
           workout.id,
           new Date(workout.date)
         );
@@ -475,6 +562,8 @@ class App {
           workout.distance,
           workout.duration,
           workout.elevation,
+          workout.location,
+          workout.weather,
           workout.id,
           new Date(workout.date)
         );
