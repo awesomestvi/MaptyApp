@@ -303,20 +303,26 @@ a:visited {
   display: none;
 }
 
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+  border: none;
+}
+
 .theme__toggle {
   position: absolute;
-  top: 85px;
-  left: 11px;
+  top: 80px;
+  left: 10px;
   z-index: 999;
   background: #fff;
   font-size: 20px;
   padding: 0;
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
+  border-radius: 2px;
 }
 
 .theme__toggle.mylocation {
-  top: 128px;
+  top: 120px;
 }
 
 /* Popup width is defined in JS using options */

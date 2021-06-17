@@ -142,7 +142,6 @@ class App {
 
   _loadMap(pos) {
     this.#mylocation = pos.coords;
-    console.log(this.#mylocation);
     const {latitude, longitude} = pos.coords;
     this.#map = L.map('map').setView([latitude, longitude], this.#zoomLevel);
 
@@ -403,7 +402,7 @@ class App {
         </div>
         <div class="workout__weather">
           <div class="workout__weather--details temp">
-            <img src="http://openweathermap.org/img/wn/${workout.weather.icon}@2x.png"/> ${Math.trunc(workout.weather.temp)}℃
+            <img src="https://openweathermap.org/img/wn/${workout.weather.icon}@2x.png"/> ${Math.trunc(workout.weather.temp)}℃
           </div>
           <div class="workout__weather--details otherinfo">
               Feels like: ${Math.trunc(workout.weather.feels_like)}° <br/> H: ${Math.trunc(workout.weather.temp_max)}° L: ${Math.trunc(workout.weather.temp_min)}°
