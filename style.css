@@ -89,6 +89,7 @@ a:visited {
 
 .btn.reset {
   color: var(--color-light--1);
+  box-shadow: none;
 }
 
 .logo_container {
@@ -302,12 +303,20 @@ a:visited {
   flex: 1;
 }
 
+.mapActions {
+  margin-bottom: 3rem;
+}
+
 .filters {
-  gap: 1rem;
+  gap: 1.75rem;
 }
 
 .filters select:focus {
   outline: none;
+}
+
+.sort {
+  text-align-last: center;
 }
 
 /* MAP */
@@ -559,10 +568,6 @@ a:visited {
     margin: 0;
   }
 
-  .mapActions {
-    padding: 0 1.5rem;
-  }
-
   .form__label {
     font-size: 1.2rem;
     font-weight: 400;
@@ -633,6 +638,7 @@ a:visited {
     width: 315px;
     margin: 15px 0 0 0;
     padding: 0 10px;
+    gap: 1rem;
   }
 
   .edit__btn i {
@@ -645,8 +651,7 @@ a:visited {
 }
 
 @media screen and (min-width: 768px) {
-  .filter--container,
-  .mapActions {
+  .filter--container {
     padding: 0 3rem;
   }
 }
