@@ -9,6 +9,7 @@ const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
 
 const btnThemeToggle = document.querySelector('.theme__toggle');
+const btnMyLocation = document.querySelector('.mylocation');
 const loaderContainer = document.querySelector('.loader__container');
 const loaderMsg = document.querySelector('.loader__msg');
 const reset = document.querySelector('.reset');
@@ -92,7 +93,8 @@ class App {
   #markers = [];
   #mapThemes = ['jawg-streets', 'jawg-dark', 'jawg-matrix'];
   #curTheme = 0;
-  #zoomLevel = 15;
+  #zoomLevel = 14;
+  #mylocation;
 
   constructor() {
     // Get Geolocation and load map
@@ -105,6 +107,7 @@ class App {
     form.addEventListener('submit', this._newWorkout.bind(this));
     inputType.addEventListener('change', this._toggleElevationField);
     btnThemeToggle.addEventListener('click', this._changeTheme.bind(this));
+    btnMyLocation.addEventListener('click', this._panToMyLocation.bind(this));
     containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
 
     reset.addEventListener('click', this._openModal);
@@ -138,6 +141,8 @@ class App {
   }
 
   _loadMap(pos) {
+    this.#mylocation = pos.coords;
+    console.log(this.#mylocation);
     const {latitude, longitude} = pos.coords;
     this.#map = L.map('map').setView([latitude, longitude], this.#zoomLevel);
 
@@ -151,6 +156,14 @@ class App {
     this._getLocalStorage();
 
     this._hideLoader();
+  }
+
+  _panToMyLocation() {
+    const {latitude, longitude} = this.#mylocation;
+    this.#map.setView([latitude, longitude], this.#zoomLevel + 1, {
+      animate: true,
+      duration: 0.5,
+    });
   }
 
   _showForm(mapE) {
@@ -353,7 +366,14 @@ class App {
 
   _renderMarker(workout) {
     this.#markers.push(
-      L.marker(workout.coords)
+      L.marker(workout.coords, {
+        icon: L.icon({
+          iconUrl: 'https://vishal-chauhan-apps.netlify.app/icon.png',
+          iconSize: [50, 50],
+          iconAnchor: [25, 50],
+          popupAnchor: [0, -50],
+        }),
+      })
         .addTo(this.#map)
         .bindPopup(
           L.popup({
@@ -372,14 +392,23 @@ class App {
   _renderWorkout(workout) {
     let html = `
     <li class="workout workout--${workout.type} actions--hidden" data-id="${workout.id}">
-    <div class="actions">
-      <button title="Edit Workout" class="btn action__btn edit__btn"><i>✎</i></button>
-      <button title="Delete Workout" class="btn action__btn delete__btn"><i>⨯</i></button>
-    </div>
-    <div class="workout__header">
-      <h2 class="workout__title">${workout.description}</h2>
-      <address class="location__container">${!workout.location.road ? '' : workout.location.road + ', '}${workout.location.suburb}, ${workout.location.city}, ${workout.location.country}
-      </address>
+      <div class="actions">
+        <button title="Edit Workout" class="btn action__btn edit__btn"><i>✎</i></button>
+        <button title="Delete Workout" class="btn action__btn delete__btn"><i>⨯</i></button>
+      </div>
+      <div class="workout__header--container">
+        <div class="workout_header">
+          <h2 class="workout__title">${workout.description}</h2>
+          <address class="workout__location">${!workout.location.road ? '' : workout.location.road + ', '}${workout.location.suburb}, ${workout.location.city}, ${workout.location.country}</address>
+        </div>
+        <div class="workout__weather">
+          <div class="workout__weather--details temp">
+            <img src="http://openweathermap.org/img/wn/${workout.weather.icon}@2x.png"/> ${Math.trunc(workout.weather.temp)}℃
+          </div>
+          <div class="workout__weather--details otherinfo">
+              Feels like: ${Math.trunc(workout.weather.feels_like)}° <br/> H: ${Math.trunc(workout.weather.temp_max)}° L: ${Math.trunc(workout.weather.temp_min)}°
+          </div>
+        </div>
       </div>
       <div title="Distance" class="workout__details">
         <span class="workout__icon">${workout.type === 'running' ? '🏃🏻' : '🚴🏼'}</span>
@@ -394,37 +423,33 @@ class App {
 
     if (workout.type === 'running') {
       html += `
-        <div title="Pace" class="workout__details">
-          <span class="workout__icon">⚡️</span>
-          <span class="workout__value">${workout.pace.toFixed(1)}</span>
-          <span class="workout__unit">min/km</span>
-        </div>
-        <div title="Cadence" class="workout__details">
-          <span class="workout__icon">🦶🏼</span>
-          <span class="workout__value">${workout.cadence}</span>
-          <span class="workout__unit">spm</span>
-        </div>
-      `;
+      <div title="Pace" class="workout__details">
+        <span class="workout__icon">⚡️</span>
+        <span class="workout__value">${workout.pace.toFixed(1)}</span>
+        <span class="workout__unit">min/km</span>
+      </div>
+      <div title="Cadence" class="workout__details">
+        <span class="workout__icon">🦶🏼</span>
+        <span class="workout__value">${workout.cadence}</span>
+        <span class="workout__unit">spm</span>
+      </div>`;
     }
 
     if (workout.type === 'cycling') {
       html += `
-        <div title="Speed" class="workout__details">
-          <span class="workout__icon">⚡️</span>
-          <span class="workout__value">${workout.speed.toFixed(1)}</span>
-          <span class="workout__unit">km/h</span>
-        </div>
-        <div title="Elevation Gain" class="workout__details">
-          <span class="workout__icon">⛰</span>
-          <span class="workout__value">${workout.elevation}</span>
-          <span class="workout__unit">m</span>
-        </div>
-      `;
+      <div title="Speed" class="workout__details">
+        <span class="workout__icon">⚡️</span>
+        <span class="workout__value">${workout.speed.toFixed(1)}</span>
+        <span class="workout__unit">km/h</span>
+      </div>
+      <div title="Elevation Gain" class="workout__details">
+        <span class="workout__icon">⛰</span>
+        <span class="workout__value">${workout.elevation}</span>
+        <span class="workout__unit">m</span>
+      </div>`;
     }
 
-    html += `
-    
-  </li>`;
+    html += `</li>`;
 
     form.insertAdjacentHTML('afterend', html);
 
