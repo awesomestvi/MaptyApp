@@ -1,41 +1,43 @@
-"use strict";
+'use strict';
 
-const form = document.querySelector(".form");
-const containerWorkouts = document.querySelector(".workouts");
-const inputType = document.querySelector(".form__input--type");
-const inputDistance = document.querySelector(".form__input--distance");
-const inputDuration = document.querySelector(".form__input--duration");
-const inputCadence = document.querySelector(".form__input--cadence");
-const inputElevation = document.querySelector(".form__input--elevation");
+const form = document.querySelector('.form');
+const containerWorkouts = document.querySelector('.workouts');
+const inputType = document.querySelector('.form__input--type');
+const inputDistance = document.querySelector('.form__input--distance');
+const inputDuration = document.querySelector('.form__input--duration');
+const inputCadence = document.querySelector('.form__input--cadence');
+const inputElevation = document.querySelector('.form__input--elevation');
 
-const btnThemeToggle = document.querySelector(".theme__toggle");
-const loaderContainer = document.querySelector(".loader__container");
-const loaderMsg = document.querySelector(".loader__msg");
-const reset = document.querySelector(".reset");
-const showAllMarkers = document.querySelector(".showAllMarkers");
-const errorContainer = document.querySelector(".error");
-const sort = document.querySelector(".sort");
-const filterContainer = document.querySelector(".filter--container");
+const btnThemeToggle = document.querySelector('.theme__toggle');
+const loaderContainer = document.querySelector('.loader__container');
+const loaderMsg = document.querySelector('.loader__msg');
+const reset = document.querySelector('.reset');
+const showAllMarkers = document.querySelector('.showAllMarkers');
+const errorContainer = document.querySelector('.error');
+const sort = document.querySelector('.sort');
+const filterContainer = document.querySelector('.filter--container');
 
 //modal
-const modalOverlay = document.querySelector(".modal-overlay");
-const modal = document.querySelector(".modal");
-const modalContent = document.querySelector(".modal-content");
-const modalActionsContainer = document.querySelector(".modal-actions");
-const modalreset = document.querySelector(".modal--reset");
-const modalretry = document.querySelector(".modal--retry");
-const modalcancel = document.querySelector(".modal--cancel");
+const modalOverlay = document.querySelector('.modal-overlay');
+const modal = document.querySelector('.modal');
+const modalContent = document.querySelector('.modal-content');
+const modalActionsContainer = document.querySelector('.modal-actions');
+const modalreset = document.querySelector('.modal--reset');
+const modalretry = document.querySelector('.modal--retry');
+const modalcancel = document.querySelector('.modal--cancel');
+
+const locationQIApiKey = '9372d4a1eb6c7817eb360b4776cd13d8';
+const openWeatherMapApiKey = '908a9045b7ece945f62d6b7c11325dae';
+const leafletApiKey = 'tnDgmf82TKLmg953RubxnjG53Sp3lXiuXacV87x2RPrcGkESyD5F9e8L5J5XSefl';
 
 class Workout {
   date = new Date();
-  id = (Date.now() + "").slice(-10);
+  id = (Date.now() + '').slice(-10);
   location;
   weather;
 
-  //prettier-ignore
-  #months = ['January','February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  #months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-  //prettier-ignore
   constructor(coords, distance, duration, location = this.location, weather = this.weather, id = this.id, date = this.date) {
     this.coords = coords;
     this.distance = distance;
@@ -47,16 +49,13 @@ class Workout {
   }
 
   _setDescription() {
-    this.description = `${this.type[0].toUpperCase()}${this.type.slice(1)} on ${
-      this.#months[this.date.getMonth()]
-    } ${this.date.getDate()}`;
+    this.description = `${this.type[0].toUpperCase()}${this.type.slice(1)} on ${this.#months[this.date.getMonth()]} ${this.date.getDate()}`;
   }
 }
 
 class Running extends Workout {
-  type = "running";
+  type = 'running';
 
-  //prettier-ignore
   constructor(coords, distance, duration, cadence, location, weather, id, date) {
     super(coords, distance, duration, location, weather, id, date);
     this.cadence = cadence;
@@ -70,9 +69,8 @@ class Running extends Workout {
 }
 
 class Cycling extends Workout {
-  type = "cycling";
+  type = 'cycling';
 
-  //prettier-ignore
   constructor(coords, distance, duration, elevation, location, weather, id, date) {
     super(coords, distance, duration, location, weather, id, date);
     this.elevation = elevation;
@@ -87,18 +85,12 @@ class Cycling extends Workout {
 
 class App {
   #i = 0;
-  #editting = {
-    flag: false,
-    id: false,
-    date: false,
-    location: false,
-    weather: false,
-  };
+  #editting = {flag: false, id: false, date: false, location: false, weather: false};
   #map;
   #mapEvent;
   #workouts = [];
   #markers = [];
-  #mapThemes = ["jawg-streets", "jawg-dark", "jawg-matrix"];
+  #mapThemes = ['jawg-streets', 'jawg-dark', 'jawg-matrix'];
   #curTheme = 0;
   #zoomLevel = 15;
 
@@ -110,28 +102,23 @@ class App {
     this._changeLoaderMsg();
 
     // Event Handlers
-    form.addEventListener("submit", this._newWorkout.bind(this));
-    inputType.addEventListener("change", this._toggleElevationField);
-    btnThemeToggle.addEventListener("click", this._changeTheme.bind(this));
-    containerWorkouts.addEventListener("click", this._moveToPopup.bind(this));
+    form.addEventListener('submit', this._newWorkout.bind(this));
+    inputType.addEventListener('change', this._toggleElevationField);
+    btnThemeToggle.addEventListener('click', this._changeTheme.bind(this));
+    containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
 
-    reset.addEventListener("click", this._openModal);
-    showAllMarkers.addEventListener("click", this._showAllMarkers.bind(this));
-    sort.addEventListener("change", this._sort.bind(this));
+    reset.addEventListener('click', this._openModal);
+    showAllMarkers.addEventListener('click', this._showAllMarkers.bind(this));
+    sort.addEventListener('change', this._sort.bind(this));
 
-    // prettier-ignore
-    modalActionsContainer.addEventListener("click", this._performModalActions.bind(this));
+    modalActionsContainer.addEventListener('click', this._performModalActions.bind(this));
 
     // unload
-    window.addEventListener("beforeunload", this._unsavedChanges);
+    window.addEventListener('beforeunload', this._unsavedChanges);
   }
 
   _getPosition() {
-    if (navigator.geolocation)
-      navigator.geolocation.getCurrentPosition(
-        this._loadMap.bind(this),
-        this._errorGeoLocation.bind(this)
-      );
+    if (navigator.geolocation) navigator.geolocation.getCurrentPosition(this._loadMap.bind(this), this._errorGeoLocation.bind(this));
   }
 
   _errorGeoLocation() {
@@ -143,20 +130,20 @@ class App {
         To access the application please allow location services and try again.</p>
       </div>`;
 
-    modalContent.innerHTML = "";
-    modalreset.classList.add("hidden");
-    modalretry.classList.remove("hidden");
-    modalContent.insertAdjacentHTML("afterbegin", html);
+    modalContent.innerHTML = '';
+    modalreset.classList.add('hidden');
+    modalretry.classList.remove('hidden');
+    modalContent.insertAdjacentHTML('afterbegin', html);
     this._openModal();
   }
 
   _loadMap(pos) {
-    const { latitude, longitude } = pos.coords;
-    this.#map = L.map("map").setView([latitude, longitude], this.#zoomLevel);
+    const {latitude, longitude} = pos.coords;
+    this.#map = L.map('map').setView([latitude, longitude], this.#zoomLevel);
 
     this._setTheme(this.#curTheme);
 
-    this.#map.on("click", this._showForm.bind(this));
+    this.#map.on('click', this._showForm.bind(this));
 
     this._activateThemeToggleBtn();
 
@@ -168,138 +155,112 @@ class App {
 
   _showForm(mapE) {
     this.#mapEvent = mapE;
-    const { lat, lng } = this.#mapEvent.latlng;
+    const {lat, lng} = this.#mapEvent.latlng;
     this._getLocationAndWeather(lat, lng).finally(() => {
-      form.classList.remove("form--hidden");
+      form.classList.remove('form--hidden');
       inputDistance.focus();
     });
   }
 
   _hideForm() {
-    form.style.display = "none";
-    form.classList.add("form--hidden");
-    setTimeout(() => (form.style.display = "grid"), 1000);
+    form.style.display = 'none';
+    form.classList.add('form--hidden');
+    setTimeout(() => (form.style.display = 'grid'), 1000);
   }
 
   _hideLoader() {
     this.#i = -1;
-    loaderContainer.classList.add("hidden");
+    loaderContainer.classList.add('hidden');
   }
 
   _toggleElevationField() {
-    if (inputType.value === "running") {
-      inputCadence.closest(".form__row").classList.remove("hidden");
-      inputElevation.closest(".form__row").classList.add("hidden");
+    if (inputType.value === 'running') {
+      inputCadence.closest('.form__row').classList.remove('hidden');
+      inputElevation.closest('.form__row').classList.add('hidden');
     }
 
-    if (inputType.value === "cycling") {
-      inputElevation.closest(".form__row").classList.remove("hidden");
-      inputCadence.closest(".form__row").classList.add("hidden");
+    if (inputType.value === 'cycling') {
+      inputElevation.closest('.form__row').classList.remove('hidden');
+      inputCadence.closest('.form__row').classList.add('hidden');
     }
   }
 
   _showActions(e) {
-    const actionsContainer = e.target.closest(".workout");
+    const actionsContainer = e.target.closest('.workout');
 
     if (!actionsContainer) return;
 
-    actionsContainer.classList.remove("actions--hidden");
+    actionsContainer.classList.remove('actions--hidden');
   }
 
   _hideActions(e) {
-    e.target.classList.add("actions--hidden");
+    e.target.classList.add('actions--hidden');
   }
 
   _setTheme(curTheme) {
-    const theme = localStorage.getItem("theme");
+    const theme = localStorage.getItem('theme');
     if (theme) curTheme = theme;
-    L.tileLayer(
-      // prettier-ignore
-      `https://{s}.tile.jawg.io/${this.#mapThemes[curTheme]}/{z}/{x}/{y}{r}.png?access-token={accessToken}`,
-      {
-        minZoom: 2,
-        maxZoom: 20,
-        accessToken:
-          "tnDgmf82TKLmg953RubxnjG53Sp3lXiuXacV87x2RPrcGkESyD5F9e8L5J5XSefl",
-      }
-    ).addTo(this.#map);
+    L.tileLayer(`https://{s}.tile.jawg.io/${this.#mapThemes[curTheme]}/{z}/{x}/{y}{r}.png?access-token={accessToken}`, {
+      minZoom: 2,
+      maxZoom: 20,
+      accessToken: leafletApiKey,
+    }).addTo(this.#map);
   }
 
   _changeTheme() {
-    // prettier-ignore
-    this.#curTheme === this.#mapThemes.length - 1 ? this.#curTheme = 0 : this.#curTheme++;
-    localStorage.setItem("theme", this.#curTheme);
+    this.#curTheme === this.#mapThemes.length - 1 ? (this.#curTheme = 0) : this.#curTheme++;
+    localStorage.setItem('theme', this.#curTheme);
     this._setTheme(this.#curTheme);
   }
 
   _clearInputFields() {
-    // prettier-ignore
     inputCadence.value = inputDistance.value = inputDuration.value = inputElevation.value = '';
   }
 
   _newWorkout(e) {
     e.preventDefault();
 
-    const validInputs = (...inputs) =>
-      inputs.every((inp) => Number.isFinite(inp));
-    const allPositive = (...inputs) => inputs.every((inp) => inp > 0);
+    const validInputs = (...inputs) => inputs.every(inp => Number.isFinite(inp));
+    const allPositive = (...inputs) => inputs.every(inp => inp > 0);
 
     // Get data from form
     const type = inputType.value;
     const distance = +inputDistance.value;
     const duration = +inputDuration.value;
-    const { lat, lng } = this.#mapEvent.latlng;
+    const {lat, lng} = this.#mapEvent.latlng;
     let workout;
 
     window.scrollTo(0, 0);
 
     // If workout is Running, create running object
-    if (type === "running") {
+    if (type === 'running') {
       const cadence = +inputCadence.value;
 
       // Check if the data is valid
-      if (
-        !validInputs(distance, duration, cadence) ||
-        !allPositive(distance, duration, cadence)
-      ) {
+      if (!validInputs(distance, duration, cadence) || !allPositive(distance, duration, cadence)) {
         this._clearInputFields();
-        return this._throwMessage(
-          "Input fields only accepts positive numbers. No alphabets or special characters are allowed."
-        );
+        return this._throwMessage('Input fields only accepts positive numbers. No alphabets or special characters are allowed.');
       }
 
       //coords, distance, duration, cadence
-      if (this.#editting.flag)
-        //prettier-ignore
-        workout = new Running([lat, lng], distance, duration, cadence, this.#editting.location, this.#editting.weather, this.#editting.id, this.#editting.date);
+      if (this.#editting.flag) workout = new Running([lat, lng], distance, duration, cadence, this.#editting.location, this.#editting.weather, this.#editting.id, this.#editting.date);
 
-      if (!this.#editting.flag)
-        //prettier-ignore
-        workout = new Running([lat, lng], distance, duration, cadence, this.#editting.location, this.#editting.weather);
+      if (!this.#editting.flag) workout = new Running([lat, lng], distance, duration, cadence, this.#editting.location, this.#editting.weather);
     }
 
     // If workout is Cycling, create cycling object
-    if (type === "cycling") {
+    if (type === 'cycling') {
       const elevation = +inputElevation.value;
 
       // Check if the data is valid
-      if (
-        !validInputs(distance, duration, elevation) ||
-        !allPositive(distance, duration)
-      ) {
+      if (!validInputs(distance, duration, elevation) || !allPositive(distance, duration)) {
         this._clearInputFields();
-        return this._throwMessage(
-          "Input fields only accepts positive numbers. No alphabets or special characters are allowed."
-        );
+        return this._throwMessage('Input fields only accepts positive numbers. No alphabets or special characters are allowed.');
       }
 
-      if (this.#editting.flag)
-        //prettier-ignore
-        workout = new Cycling([lat, lng], distance, duration, elevation, this.#editting.location, this.#editting.weather, this.#editting.id, this.#editting.date);
+      if (this.#editting.flag) workout = new Cycling([lat, lng], distance, duration, elevation, this.#editting.location, this.#editting.weather, this.#editting.id, this.#editting.date);
 
-      if (!this.#editting.flag)
-        //prettier-ignore
-        workout = new Cycling([lat, lng], distance, duration, elevation, this.#editting.location, this.#editting.weather);
+      if (!this.#editting.flag) workout = new Cycling([lat, lng], distance, duration, elevation, this.#editting.location, this.#editting.weather);
     }
 
     // Add new Onject to workout array
@@ -323,8 +284,7 @@ class App {
     this._showFilters();
 
     // Show Message
-    if (!this.#editting.flag)
-      this._throwMessage(`A new ${workout.type} workout has been added.`);
+    if (!this.#editting.flag) this._throwMessage(`A new ${workout.type} workout has been added.`);
 
     if (this.#editting.flag) this._throwMessage(`Workout has been edited.`);
 
@@ -336,23 +296,19 @@ class App {
   }
 
   _getLocationAndWeather(lat, lng) {
-    return Promise.all([
-      this._getLocationDetails(lat, lng),
-      this._getLocationWeather(lat, lng),
-    ])
+    return Promise.all([this._getLocationDetails(lat, lng), this._getLocationWeather(lat, lng)])
       .then(([res1, res2]) => {
-        const { road, suburb, city, country } = res1.address;
-        this.#editting.location = { road, suburb, city, country };
-        this.#editting.weather = { ...res2.main, ...res2.weather[0] };
+        const {road, suburb, city, country} = res1.address;
+        this.#editting.location = {road, suburb, city, country};
+        this.#editting.weather = {...res2.main, ...res2.weather[0]};
       })
-      .catch((err) => {});
+      .catch(err => {});
   }
 
   async _getLocationDetails(lat, lng) {
     try {
-      //prettier-ignore
-      const res = await fetch(`https://eu1.locationiq.com/v1/reverse.php?key=pk.9372d4a1eb6c7817eb360b4776cd13d8&lat=${lat}&lon=${lng}&format=json`);
-      //prettier-ignore
+      const res = await fetch(`https://eu1.locationiq.com/v1/reverse.php?key=pk.${locationQIApiKey}&lat=${lat}&lon=${lng}&format=json`);
+
       if (!res.ok) throw new Error(`Could not get location details of the your workout [${res.status}]`);
       return await res.json();
     } catch (err) {
@@ -362,9 +318,8 @@ class App {
 
   async _getLocationWeather(lat, lng) {
     try {
-      //prettier-ignore
-      const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&units=metric&appid=908a9045b7ece945f62d6b7c11325dae`);
-      //prettier-ignore
+      const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&units=metric&appid=${openWeatherMapApiKey}`);
+
       if (!res.ok) throw new Error(`Could not get the weather details of your workout location [${res.status}]`);
       return await res.json();
     } catch (err) {
@@ -380,17 +335,17 @@ class App {
     this.#editting.weather = workout.weather;
 
     this._showForm({
-      latlng: { lat: workout.coords[0], lng: workout.coords[1] },
+      latlng: {lat: workout.coords[0], lng: workout.coords[1]},
     });
     inputDistance.value = workout.distance;
     inputDuration.value = workout.duration;
     inputType.value = workout.type;
 
-    if (workout.type === "running") {
+    if (workout.type === 'running') {
       inputCadence.value = workout.cadence;
     }
 
-    if (workout.type === "cycling") {
+    if (workout.type === 'cycling') {
       inputElevation.value = workout.elevation;
     }
     this._deleteWorkout(workout, true);
@@ -409,39 +364,27 @@ class App {
             className: `${workout.type}-popup`,
           })
         )
-        .setPopupContent(
-          `${workout.type === "running" ? "🏃🏻" : "🚴🏼"} ${workout.description}`
-        )
+        .setPopupContent(`${workout.type === 'running' ? '🏃🏻' : '🚴🏼'} ${workout.description}`)
         .openPopup()
     );
   }
 
   _renderWorkout(workout) {
     let html = `
-    <li class="workout workout--${workout.type} actions--hidden" data-id="${
-      workout.id
-    }">
+    <li class="workout workout--${workout.type} actions--hidden" data-id="${workout.id}">
     <div class="actions">
       <button title="Edit Workout" class="btn action__btn edit__btn"><i>✎</i></button>
       <button title="Delete Workout" class="btn action__btn delete__btn"><i>⨯</i></button>
     </div>
     <div class="workout__header">
       <h2 class="workout__title">${workout.description}</h2>
-      <address class="location__container">${
-        !workout.location.road ? "" : workout.location.road + ", "
-      }${workout.location.suburb}, ${workout.location.city}, ${
-      workout.location.country
-    }
+      <address class="location__container">${!workout.location.road ? '' : workout.location.road + ', '}${workout.location.suburb}, ${workout.location.city}, ${workout.location.country}
       </address>
       </div>
       <div title="Distance" class="workout__details">
-        <span class="workout__icon">${
-          workout.type === "running" ? "🏃🏻" : "🚴🏼"
-        }</span>
+        <span class="workout__icon">${workout.type === 'running' ? '🏃🏻' : '🚴🏼'}</span>
         <span class="workout__value">${workout.distance}</span>
-        <span class="workout__unit">${
-          workout.distance > 1 ? "kms" : "km"
-        }</span>
+        <span class="workout__unit">${workout.distance > 1 ? 'kms' : 'km'}</span>
       </div>
       <div title="Duration" class="workout__details">
         <span class="workout__icon">⏱</span>
@@ -449,7 +392,7 @@ class App {
         <span class="workout__unit">min</span>
       </div>`;
 
-    if (workout.type === "running") {
+    if (workout.type === 'running') {
       html += `
         <div title="Pace" class="workout__details">
           <span class="workout__icon">⚡️</span>
@@ -464,7 +407,7 @@ class App {
       `;
     }
 
-    if (workout.type === "cycling") {
+    if (workout.type === 'cycling') {
       html += `
         <div title="Speed" class="workout__details">
           <span class="workout__icon">⚡️</span>
@@ -480,41 +423,26 @@ class App {
     }
 
     html += `
-    <div class="workout__footer">
-      <div class="workout__details temp">
-        ${Math.trunc(workout.weather.temp)}℃
-      </div>
-      <div class="workout__details feelslike">
-        Feels like: ${Math.trunc(workout.weather.feels_like)}℃
-      </div>
-      <div class="workout__details high">
-          High: ${Math.trunc(workout.weather.temp_max)}℃
-      </div>
-      <div class="workout__details low">
-        Low: ${Math.trunc(workout.weather.temp_min)}℃
-      </div>
-    </div>
+    
   </li>`;
 
-    form.insertAdjacentHTML("afterend", html);
+    form.insertAdjacentHTML('afterend', html);
 
-    const workoutEls = document.querySelectorAll(".workout");
-    workoutEls.forEach((workoutEl) => {
-      workoutEl.addEventListener("mouseleave", this._hideActions);
-      workoutEl.addEventListener("mouseenter", this._showActions);
+    const workoutEls = document.querySelectorAll('.workout');
+    workoutEls.forEach(workoutEl => {
+      workoutEl.addEventListener('mouseleave', this._hideActions);
+      workoutEl.addEventListener('mouseenter', this._showActions);
     });
   }
 
   _moveToPopup(e) {
-    const workoutEl = e.target.closest(".workout");
-    const deleteBtn = e.target.closest(".delete__btn");
-    const editBtn = e.target.closest(".edit__btn");
+    const workoutEl = e.target.closest('.workout');
+    const deleteBtn = e.target.closest('.delete__btn');
+    const editBtn = e.target.closest('.edit__btn');
 
     if (!workoutEl) return;
 
-    const workout = this.#workouts.find(
-      (workout) => workout.id === workoutEl.dataset.id
-    );
+    const workout = this.#workouts.find(workout => workout.id === workoutEl.dataset.id);
 
     this.#map.setView(workout.coords, this.#zoomLevel, {
       animate: true,
@@ -526,11 +454,11 @@ class App {
   }
 
   _setLocalStorage() {
-    localStorage.setItem("workouts", JSON.stringify(this.#workouts));
+    localStorage.setItem('workouts', JSON.stringify(this.#workouts));
   }
 
   _getLocalStorage() {
-    const workouts = JSON.parse(localStorage.getItem("workouts"));
+    const workouts = JSON.parse(localStorage.getItem('workouts'));
 
     this._loadWorkouts(workouts);
   }
@@ -541,37 +469,19 @@ class App {
       return;
     }
 
-    workouts.forEach((workout) => {
-      if (workout.type === "running") {
-        const running = new Running(
-          workout.coords,
-          workout.distance,
-          workout.duration,
-          workout.cadence,
-          workout.location,
-          workout.weather,
-          workout.id,
-          new Date(workout.date)
-        );
+    workouts.forEach(workout => {
+      if (workout.type === 'running') {
+        const running = new Running(workout.coords, workout.distance, workout.duration, workout.cadence, workout.location, workout.weather, workout.id, new Date(workout.date));
         this.#workouts.push(running);
       }
 
-      if (workout.type === "cycling") {
-        const cycling = new Cycling(
-          workout.coords,
-          workout.distance,
-          workout.duration,
-          workout.elevation,
-          workout.location,
-          workout.weather,
-          workout.id,
-          new Date(workout.date)
-        );
+      if (workout.type === 'cycling') {
+        const cycling = new Cycling(workout.coords, workout.distance, workout.duration, workout.elevation, workout.location, workout.weather, workout.id, new Date(workout.date));
         this.#workouts.push(cycling);
       }
     });
 
-    this.#workouts.forEach((workout) => {
+    this.#workouts.forEach(workout => {
       this._renderMarker(workout);
       this._renderWorkout(workout);
     });
@@ -583,32 +493,24 @@ class App {
     this._showFilters();
 
     // Show Message
-    this._throwMessage(
-      `Welcome Back! You have ${workouts.length} saved ${
-        workouts.length === 1 ? "workout" : "workouts"
-      }.`
-    );
+    this._throwMessage(`Welcome Back! You have ${workouts.length} saved ${workouts.length === 1 ? 'workout' : 'workouts'}.`);
   }
 
   _sort(e) {
-    const sortValue = e.target.value.split("+");
+    const sortValue = e.target.value.split('+');
     this.#workouts = this.#workouts.sort((a, b) => {
-      if (sortValue[1] === "asc") {
-        this._throwMessage(
-          `The workouts are now sorted by ${sortValue[0]} in ascending order`
-        );
+      if (sortValue[1] === 'asc') {
+        this._throwMessage(`The workouts are now sorted by ${sortValue[0]} in ascending order`);
         return b[sortValue[0]] - a[sortValue[0]];
       }
-      if (sortValue[1] === "des") {
-        this._throwMessage(
-          `The workouts are now sorted by ${sortValue[0]} in descending order`
-        );
+      if (sortValue[1] === 'des') {
+        this._throwMessage(`The workouts are now sorted by ${sortValue[0]} in descending order`);
         return a[sortValue[0]] - b[sortValue[0]];
       }
     });
 
     this._deleteAllWorkoutHTML();
-    this.#workouts.forEach((workout) => this._renderWorkout(workout));
+    this.#workouts.forEach(workout => this._renderWorkout(workout));
   }
 
   _deleteWorkout(workout, editting = false) {
@@ -618,8 +520,7 @@ class App {
     this._hideFilters();
     this._deleteMarker(index);
     this._deleteWorkoutHTML(workout);
-    if (!editting)
-      this._throwMessage(`Workout "${workout.description}" has been deleted.`);
+    if (!editting) this._throwMessage(`Workout "${workout.description}" has been deleted.`);
     this._setLocalStorage();
   }
 
@@ -629,34 +530,32 @@ class App {
   }
 
   _deleteWorkoutHTML(workout) {
-    const workoutEl = document.querySelector(
-      `.workout[data-id='${workout.id}']`
-    );
+    const workoutEl = document.querySelector(`.workout[data-id='${workout.id}']`);
     workoutEl.remove();
   }
 
   _deleteAllWorkoutHTML() {
-    const allWorkoutEls = document.querySelectorAll(".workout");
-    allWorkoutEls.forEach((workoutEl) => workoutEl.remove());
+    const allWorkoutEls = document.querySelectorAll('.workout');
+    allWorkoutEls.forEach(workoutEl => workoutEl.remove());
   }
 
   _showMapActionBtns() {
-    reset.classList.remove("hidden");
+    reset.classList.remove('hidden');
   }
 
   _hideMapActionBtns() {
-    reset.classList.add("hidden");
+    reset.classList.add('hidden');
   }
 
   _showFilters() {
     if (this.#workouts.length > 1) {
-      filterContainer.classList.remove("hidden");
+      filterContainer.classList.remove('hidden');
     }
   }
 
   _hideFilters() {
     if (this.#workouts.length <= 1) {
-      filterContainer.classList.add("hidden");
+      filterContainer.classList.add('hidden');
     }
   }
 
@@ -665,14 +564,14 @@ class App {
 
     this._deleteAllWorkoutHTML();
 
-    this.#markers.forEach((marker) => {
+    this.#markers.forEach(marker => {
       marker.remove();
     });
     this.#markers = [];
 
     this.#workouts = [];
 
-    localStorage.removeItem("workouts");
+    localStorage.removeItem('workouts');
 
     this._hideForm();
 
@@ -685,7 +584,7 @@ class App {
 
   _showAllMarkers() {
     const bounds = [];
-    this.#workouts.forEach((workout) => bounds.push(workout.coords));
+    this.#workouts.forEach(workout => bounds.push(workout.coords));
     this.#map.fitBounds([bounds]);
   }
 
@@ -696,13 +595,13 @@ class App {
   }
 
   _openModal() {
-    modal.classList.remove("hidden");
-    modalOverlay.classList.remove("hidden");
+    modal.classList.remove('hidden');
+    modalOverlay.classList.remove('hidden');
   }
 
   _closeModal() {
-    modal.classList.add("hidden");
-    modalOverlay.classList.add("hidden");
+    modal.classList.add('hidden');
+    modalOverlay.classList.add('hidden');
   }
 
   _reload() {
@@ -710,20 +609,20 @@ class App {
   }
 
   _activateThemeToggleBtn() {
-    btnThemeToggle.classList.remove("hidden");
+    btnThemeToggle.classList.remove('hidden');
   }
 
   _throwMessage(msg) {
     errorContainer.textContent = msg;
-    errorContainer.classList.remove("error--hidden");
+    errorContainer.classList.remove('error--hidden');
 
-    errorContainer.addEventListener("click", this._hideMessage);
+    errorContainer.addEventListener('click', this._hideMessage);
 
     setTimeout(() => this._hideMessage(), 5000);
   }
 
   _hideMessage() {
-    errorContainer.classList.add("error--hidden");
+    errorContainer.classList.add('error--hidden');
   }
 
   _wait(seconds) {
@@ -734,11 +633,11 @@ class App {
 
   async _changeLoaderMsg() {
     const loaderMessages = [
-      "Fetching your location...",
-      "Still fetching your location...",
-      "You are a tough one to find...",
-      "Something is terribly wrong it should not take this long...",
-      "Are you sure you have your location services turned on?",
+      'Fetching your location...',
+      'Still fetching your location...',
+      'You are a tough one to find...',
+      'Something is terribly wrong it should not take this long...',
+      'Are you sure you have your location services turned on?',
     ];
 
     loaderMsg.textContent = loaderMessages[this.#i];
@@ -757,9 +656,9 @@ class App {
   }
 
   _unsavedChanges(e) {
-    if (!form.classList.contains("form--hidden")) {
+    if (!form.classList.contains('form--hidden')) {
       e.preventDefault();
-      e.returnValue = "";
+      e.returnValue = '';
     }
   }
 }
