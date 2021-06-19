@@ -514,9 +514,7 @@ class App {
   }
 
   _loadWorkouts(workouts) {
-    if (!workouts || workouts.length === 0) {
-      return;
-    }
+    if (!workouts || workouts.length === 0) return;
 
     this._hideWelcomeMessage();
 
