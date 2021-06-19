@@ -269,7 +269,6 @@ class App {
 
       if (!validInputs(distance, duration, cadence) || !allPositive(distance, duration, cadence)) {
         getInvalidFields(inputDistance, inputDuration, inputCadence);
-        this._clearInputFields();
         this._throwMessage(`${validationText.join(' and ')} is required.`);
         //validationText = [];
         return;
@@ -288,7 +287,6 @@ class App {
       // Check if the data is valid
       if (!validInputs(distance, duration, elevation) || !allPositive(distance, duration)) {
         getInvalidFields(inputDistance, inputDuration, inputElevation);
-        this._clearInputFields();
         this._throwMessage(`${validationText.join(' and ')} is required.`);
         return;
       }
