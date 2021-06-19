@@ -102,6 +102,14 @@ a:visited {
   margin-bottom: 2rem;
 }
 
+.filter--container {
+  filter: drop-shadow(2px 4px 6px black);
+}
+
+.filter--container .filters .btn {
+  box-shadow: none;
+}
+
 .workouts {
   list-style: none;
   overflow-y: scroll;
@@ -626,7 +634,7 @@ a:visited {
 
   .filter--container {
     position: fixed;
-    width: 250px;
+    width: 256px;
     height: 60px;
     top: 300px;
     left: 120px;

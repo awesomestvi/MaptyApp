@@ -1,6 +1,7 @@
 'use strict';
 
 const form = document.querySelector('.form');
+const btnCancel = document.querySelector('.cancel');
 const containerWorkouts = document.querySelector('.workouts');
 const inputType = document.querySelector('.form__input--type');
 const inputDistance = document.querySelector('.form__input--distance');
@@ -111,6 +112,7 @@ class App {
     btnMyLocation.addEventListener('click', this._panToMyLocation.bind(this));
     containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
 
+    btnCancel.addEventListener('click', this._hideForm);
     reset.addEventListener('click', this._openModal);
     showAllMarkers.addEventListener('click', this._showAllMarkers.bind(this));
     sort.addEventListener('change', this._sort.bind(this));
@@ -181,8 +183,8 @@ class App {
     });
   }
 
-  _hideForm() {
-    form.style.display = 'none';
+  _hideForm(e) {
+    if (!e) form.style.display = 'none';
     form.classList.add('form--hidden');
     setTimeout(() => (form.style.display = 'grid'), 1000);
   }
@@ -239,8 +241,16 @@ class App {
   _newWorkout(e) {
     e.preventDefault();
 
+    let validationText = [];
+
     const validInputs = (...inputs) => inputs.every(inp => Number.isFinite(inp));
     const allPositive = (...inputs) => inputs.every(inp => inp > 0);
+    const getInvalidFields = (...inputs) =>
+      inputs.forEach(inp => {
+        if (+inp.value === 0) {
+          validationText.push(inp.previousElementSibling.textContent);
+        }
+      });
 
     // Get data from form
     const type = inputType.value;
@@ -256,9 +266,13 @@ class App {
       const cadence = +inputCadence.value;
 
       // Check if the data is valid
+
       if (!validInputs(distance, duration, cadence) || !allPositive(distance, duration, cadence)) {
+        getInvalidFields(inputDistance, inputDuration, inputCadence);
         this._clearInputFields();
-        return this._throwMessage('Input fields only accepts positive numbers. No alphabets or special characters are allowed.');
+        this._throwMessage(`${validationText.join(' and ')} is required.`);
+        //validationText = [];
+        return;
       }
 
       //coords, distance, duration, cadence
@@ -273,8 +287,10 @@ class App {
 
       // Check if the data is valid
       if (!validInputs(distance, duration, elevation) || !allPositive(distance, duration)) {
+        getInvalidFields(inputDistance, inputDuration, inputElevation);
         this._clearInputFields();
-        return this._throwMessage('Input fields only accepts positive numbers. No alphabets or special characters are allowed.');
+        this._throwMessage(`${validationText.join(' and ')} is required.`);
+        return;
       }
 
       if (this.#editting.flag) workout = new Cycling([lat, lng], distance, duration, elevation, this.#editting.location, this.#editting.weather, this.#editting.id, this.#editting.date);
@@ -653,12 +669,13 @@ class App {
   _throwMessage(msg) {
     errorContainer.textContent = msg;
     errorContainer.classList.remove('error--hidden');
+    this._delay(4);
+  }
 
-    new Promise(resolve => {
-      setTimeout(() => {
-        resolve(this._hideMessage());
-      }, 3000);
-    });
+  async _delay(seconds) {
+    await new Promise(function (resolve) {
+      setTimeout(resolve, seconds * 1000);
+    }).finally(this._hideMessage);
   }
 
   _hideMessage() {
