@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
     <meta name="theme-color" content="#2d3439" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <meta name="description" content="Mapty app is a small go-to workout tracker to track your cycling and running workouts and store them on the map." />
     <link rel="shortcut icon" type="image/png" href="/icon.png" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+    <link href="/manifest.json" rel="manifest" />
     <link defer href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet" />
     <link defer href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" rel="stylesheet" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin="" />
     <link defer rel="stylesheet" href="style.css" />
@@ -32,39 +35,41 @@
       </div>
       <div class="welcome__message">
         <h1>Welcome to Mapty App!</h1>
-        <p>Mapty app is a small go-to workout tracker which you can use to track your cycling and running workouts and store them on the map.</p>
-        <p>These workouts are shown in easy to use design, with weather and location information from the place and time of your workout.</p>
-        <p>All these workout informations are stored on your device and no one else has access to these except you.</p>
-        <p>So track your workout by clicking on the map...</p>
+        <p>Mapty app is a small go-to workout tracker to track your cycling and running workouts and store them on the map.</p>
+        <p>These workouts are shown in easy-to-use design, providing weather and location information from the time and place of your workout.</p>
+        <p>All these workout informations are stored on your device and only you have access to it.</p>
+        <p>You can start tracking your workout by clicking on the map...</p>
       </div>
       <ul class="workouts">
-        <form class="form form--hidden">
-          <div class="form__row">
-            <label class="form__label">Type</label>
-            <select class="form__input form__input--type">
-              <option value="running">Running</option>
-              <option value="cycling">Cycling</option>
-            </select>
-          </div>
-          <div class="form__row">
-            <label class="form__label">Distance</label>
-            <input type="number" class="form__input form__input--distance" placeholder="km" />
-          </div>
-          <div class="form__row">
-            <label class="form__label">Duration</label>
-            <input type="number" class="form__input form__input--duration" placeholder="min" />
-          </div>
-          <div class="form__row">
-            <label class="form__label">Cadence</label>
-            <input type="number" class="form__input form__input--cadence" placeholder="step/min" />
-          </div>
-          <div class="form__row hidden">
-            <label class="form__label">Elev Gain</label>
-            <input type="number" class="form__input form__input--elevation" placeholder="meters" />
-          </div>
-          <button type="reset" class="form__btn btn cancel">Cancel</button>
-          <button type="submit" class="form__btn btn">Submit</button>
-        </form>
+        <li>
+          <form class="form form--hidden">
+            <div class="form__row">
+              <label class="form__label">Type</label>
+              <select class="form__input form__input--type">
+                <option value="running">Running</option>
+                <option value="cycling">Cycling</option>
+              </select>
+            </div>
+            <div class="form__row">
+              <label class="form__label">Distance</label>
+              <input type="number" class="form__input form__input--distance" placeholder="km" />
+            </div>
+            <div class="form__row">
+              <label class="form__label">Duration</label>
+              <input type="number" class="form__input form__input--duration" placeholder="min" />
+            </div>
+            <div class="form__row">
+              <label class="form__label">Cadence</label>
+              <input type="number" class="form__input form__input--cadence" placeholder="step/min" />
+            </div>
+            <div class="form__row hidden">
+              <label class="form__label">Elev Gain</label>
+              <input type="number" class="form__input form__input--elevation" placeholder="meters" />
+            </div>
+            <button type="reset" class="form__btn btn cancel">Cancel</button>
+            <button type="submit" class="form__btn btn">Submit</button>
+          </form>
+        </li>
         <li class="mapActions">
           <button class="btn reset reset_workout hidden">Reset</button>
         </li>

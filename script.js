@@ -568,7 +568,7 @@ class App {
     const index = this.#workouts.indexOf(workout);
     if (this.#workouts.length === 1) this._hideMapActionBtns();
     this.#workouts.splice(index, 1);
-    if (this.#workouts.length === 0) this._showWelcomeMessage();
+    if (this.#workouts.length === 0 && !editting) this._showWelcomeMessage();
     this._hideFilters();
     this._deleteMarker(index);
     this._deleteWorkoutHTML(workout);
