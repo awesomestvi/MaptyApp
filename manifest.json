@@ -16,10 +16,10 @@
     }
   ],
   "start_url": "/",
-  "background_color": "#2C2F30",
+  "background_color": "#00c46a",
   "display": "fullscreen",
   "scope": "/",
-  "theme_color": "#2C2F30",
+  "theme_color": "#00c46a",
   "description": "Mapty app is a small go-to workout tracker to track your cycling and running workouts and store them on the map.",
   "prefer_related_applications": true
 }
