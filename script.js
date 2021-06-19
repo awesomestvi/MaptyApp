@@ -665,13 +665,7 @@ class App {
   _throwMessage(msg) {
     errorContainer.textContent = msg;
     errorContainer.classList.remove('error--hidden');
-    this._delay(4);
-  }
-
-  async _delay(seconds) {
-    await new Promise(function (resolve) {
-      setTimeout(resolve, seconds * 1000);
-    }).finally(this._hideMessage);
+    setTimeout(this._hideMessage, 5000);
   }
 
   _hideMessage() {
