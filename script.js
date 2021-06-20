@@ -556,6 +556,7 @@ class App {
   }
 
   _deleteWorkout(workout, editting = false) {
+this._closeModal();
     const index = this.#workouts.indexOf(workout);
 const length = this.#workouts.length;
     if (length === 1) this._hideMapActionBtns();
