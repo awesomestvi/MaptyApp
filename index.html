@@ -77,8 +77,10 @@
     </div>
     <div class="map_container">
       <div id="map"></div>
-      <button title="Change Map's Theme" class="btn theme__toggle hidden">🌗</button>
-      <button title="My Location" class="btn theme__toggle mylocation">📍</button>
+      <div class="map_UI">
+        <button title="Change Map's Theme" class="btn theme__toggle hidden">🌗</button>
+        <button title="My Location" class="btn theme__toggle mylocation">📍</button>
+      </div>
     </div>
 
     <div class="loader__container">
@@ -93,19 +95,14 @@
     <div class="modal-overlay hidden"></div>
     <div class="modal hidden">
       <div class="modal-body">
-        <div class="modal-content">
-          <h1>Warning!</h1>
-          <p>
-            Are you sure you want to delete all workouts and reset the application?
-            <span>Note: This action cannot be reversed</span>
-          </p>
-        </div>
+        <div class="modal-content"></div>
         <div class="modal-footer modal-actions">
           <div></div>
           <div></div>
-          <button class="btn reset modal--reset">Reset</button>
+          <button class="btn reset modal--reset hidden">Reset</button>
           <button class="btn cancel modal--cancel">Cancel</button>
           <button class="btn retry modal--retry hidden">Retry</button>
+          <button class="btn delete modal--delete hidden">Delete</button>
         </div>
       </div>
     </div>

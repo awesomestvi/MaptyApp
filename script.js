@@ -9,6 +9,7 @@ const inputDuration = document.querySelector('.form__input--duration');
 const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
 
+const mapUIContainer = document.querySelector('.map_UI');
 const btnThemeToggle = document.querySelector('.theme__toggle');
 const btnMyLocation = document.querySelector('.mylocation');
 const loaderContainer = document.querySelector('.loader__container');
@@ -23,10 +24,12 @@ const welcomeMessage = document.querySelector('.welcome__message');
 //modal
 const modalOverlay = document.querySelector('.modal-overlay');
 const modal = document.querySelector('.modal');
+const modalBody = document.querySelector('.modal-body');
 const modalContent = document.querySelector('.modal-content');
 const modalActionsContainer = document.querySelector('.modal-actions');
 const modalreset = document.querySelector('.modal--reset');
 const modalretry = document.querySelector('.modal--retry');
+const modaldelete = document.querySelector('.modal--delete');
 const modalcancel = document.querySelector('.modal--cancel');
 
 const locationQIApiKey = '9372d4a1eb6c7817eb360b4776cd13d8';
@@ -97,6 +100,7 @@ class App {
   #curTheme = 0;
   #zoomLevel = 14;
   #mylocation;
+  #confirmDeleteWorkout;
 
   constructor() {
     // Get Geolocation and load map
@@ -108,13 +112,12 @@ class App {
     // Event Handlers
     form.addEventListener('submit', this._newWorkout.bind(this));
     inputType.addEventListener('change', this._toggleElevationField);
-    btnThemeToggle.addEventListener('click', this._changeTheme.bind(this));
-    btnMyLocation.addEventListener('click', this._panToMyLocation.bind(this));
+    mapUIContainer.addEventListener('click', this._mapUIActions.bind(this));
     containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
 
     btnCancel.addEventListener('click', this._hideForm);
-    reset.addEventListener('click', this._openModal);
-    showAllMarkers.addEventListener('click', this._showAllMarkers.bind(this));
+    reset.addEventListener('click', () => this._setModalContent('reset'));
+    showAllMarkers.addEventListener('click', this._showAllWorkouts.bind(this));
     sort.addEventListener('change', this._sort.bind(this));
 
     modalActionsContainer.addEventListener('click', this._performModalActions.bind(this));
@@ -129,19 +132,7 @@ class App {
   }
 
   _errorGeoLocation() {
-    const html = `
-      <div class="modal-content">
-        <h1>Location access denied</h1>
-        <p>This app has been blocked from accessing your location.
-        This can happen if your browser's location services are turned off.
-        To access the application please allow location services and try again.</p>
-      </div>`;
-
-    modalContent.innerHTML = '';
-    modalreset.classList.add('hidden');
-    modalretry.classList.remove('hidden');
-    modalContent.insertAdjacentHTML('afterbegin', html);
-    this._openModal();
+    this._setModalContent('geolocation');
   }
 
   _loadMap(pos) {
@@ -228,6 +219,11 @@ class App {
     }).addTo(this.#map);
   }
 
+  _mapUIActions(e) {
+    if (e.target === btnThemeToggle) this._changeTheme();
+    if (e.target === btnMyLocation) this._panToMyLocation();
+  }
+
   _changeTheme() {
     this.#curTheme === this.#mapThemes.length - 1 ? (this.#curTheme = 0) : this.#curTheme++;
     localStorage.setItem('theme', this.#curTheme);
@@ -270,7 +266,6 @@ class App {
       if (!validInputs(distance, duration, cadence) || !allPositive(distance, duration, cadence)) {
         getInvalidFields(inputDistance, inputDuration, inputCadence);
         this._throwMessage(`${validationText.join(' and ')} is required.`);
-        //validationText = [];
         return;
       }
 
@@ -498,7 +493,7 @@ class App {
     });
 
     if (editBtn) this._editWorkout(workout);
-    if (deleteBtn) this._deleteWorkout(workout);
+    if (deleteBtn) this._setModalContent('delete', workout);
   }
 
   _setLocalStorage() {
@@ -561,6 +556,7 @@ class App {
   }
 
   _deleteWorkout(workout, editting = false) {
+    this._confirmDelete(workout);
     const index = this.#workouts.indexOf(workout);
     if (this.#workouts.length === 1) this._hideMapActionBtns();
     this.#workouts.splice(index, 1);
@@ -632,7 +628,7 @@ class App {
     this._throwMessage(`All the workouts are now deleted.`);
   }
 
-  _showAllMarkers() {
+  _showAllWorkouts() {
     const bounds = [];
     this.#workouts.forEach(workout => bounds.push(workout.coords));
     this.#map.fitBounds([bounds]);
@@ -642,6 +638,57 @@ class App {
     if (e.target === modalcancel) this._closeModal();
     if (e.target === modalreset) this._reset();
     if (e.target === modalretry) this._reload();
+    if (e.target === modaldelete) this._deleteWorkout(this.#confirmDeleteWorkout);
+  }
+
+  _setModalContent(type, workout = false) {
+    let html;
+
+    modaldelete.classList.add('hidden');
+    modalreset.classList.add('hidden');
+    modalretry.classList.add('hidden');
+    modalBody.classList.remove('short');
+
+    if (type === 'reset') {
+      html = `
+      <div class="modal-content">
+        <h1>Warning!</h1>
+        <p>
+          Are you sure you want to delete all workouts and reset the application?
+          <span>Note: This action cannot be reversed</span>
+        </p>
+      </div>`;
+
+      modalreset.classList.remove('hidden');
+    }
+
+    if (type === 'geolocation') {
+      html = `
+      <div class="modal-content">
+        <h1>Location access denied</h1>
+        <p>This app has been blocked from accessing your location.
+        This can happen if your browser's location services are turned off.
+        To access the application please allow location services and try again.</p>
+      </div>`;
+
+      modalretry.classList.remove('hidden');
+    }
+
+    if (type === 'delete') {
+      html = `
+      <div class="modal-content">
+        <h1>${workout.description}</h1>
+        <p>Are you sure you want to delete this workout?</p>
+      </div>`;
+
+      modalBody.classList.add('short');
+      this.#confirmDeleteWorkout = workout;
+      modaldelete.classList.remove('hidden');
+    }
+
+    modalContent.innerHTML = '';
+    modalContent.insertAdjacentHTML('afterbegin', html);
+    this._openModal();
   }
 
   _openModal() {

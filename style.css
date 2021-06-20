@@ -419,6 +419,10 @@ a:visited {
   grid-template-rows: auto 40px;
 }
 
+.modal-body.short {
+  height: 150px !important;
+}
+
 .modal-content p {
   font-size: 14px;
   line-height: 18px;
