@@ -556,11 +556,11 @@ class App {
   }
 
   _deleteWorkout(workout, editting = false) {
-    this._confirmDelete(workout);
     const index = this.#workouts.indexOf(workout);
-    if (this.#workouts.length === 1) this._hideMapActionBtns();
+const length = this.#workouts.length;
+    if (length === 1) this._hideMapActionBtns();
     this.#workouts.splice(index, 1);
-    if (this.#workouts.length === 0 && !editting) this._showWelcomeMessage();
+    if (length === 0 && !editting) this._showWelcomeMessage();
     this._hideFilters();
     this._deleteMarker(index);
     this._deleteWorkoutHTML(workout);
