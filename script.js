@@ -101,6 +101,7 @@ class App {
   #zoomLevel = 14;
   #mylocation;
   #confirmDeleteWorkout;
+  #validationText = [];
 
   constructor() {
     // Get Geolocation and load map
@@ -234,19 +235,29 @@ class App {
     inputCadence.value = inputDistance.value = inputDuration.value = inputElevation.value = '';
   }
 
+  _getInvalidFields = (...inputs) => {
+    let hasError = false;
+    inputs.forEach(inp => {
+      if (+inp.value <= 0 && !inp.classList.contains('form__input--elevation')) {
+        this.#validationText.push(inp.previousElementSibling.textContent);
+        hasError = true;
+      }
+
+      if (+inp.value === 0 && inp.classList.contains('form__input--elevation')) {
+        this.#validationText.push(inp.previousElementSibling.textContent);
+        hasError = true;
+      }
+    });
+
+    return hasError;
+  };
+
+  //const validInputs = (...inputs) => inputs.every(inp => Number.isFinite(inp));
+  //const allPositive = (...inputs) => inputs.every(inp => inp > 0);
+
   _newWorkout(e) {
     e.preventDefault();
-
-    let validationText = [];
-
-    const validInputs = (...inputs) => inputs.every(inp => Number.isFinite(inp));
-    const allPositive = (...inputs) => inputs.every(inp => inp > 0);
-    const getInvalidFields = (...inputs) =>
-      inputs.forEach(inp => {
-        if (+inp.value === 0) {
-          validationText.push(inp.previousElementSibling.textContent);
-        }
-      });
+    this.#validationText = [];
 
     // Get data from form
     const type = inputType.value;
@@ -262,10 +273,8 @@ class App {
       const cadence = +inputCadence.value;
 
       // Check if the data is valid
-
-      if (!validInputs(distance, duration, cadence) || !allPositive(distance, duration, cadence)) {
-        getInvalidFields(inputDistance, inputDuration, inputCadence);
-        this._throwMessage(`${validationText.join(' and ')} is required.`);
+      if (this._getInvalidFields(inputDistance, inputDuration, inputCadence)) {
+        this._throwMessage(`${this.#validationText.join(' and ')} is required and should be a positive number.`);
         return;
       }
 
@@ -280,9 +289,8 @@ class App {
       const elevation = +inputElevation.value;
 
       // Check if the data is valid
-      if (!validInputs(distance, duration, elevation) || !allPositive(distance, duration)) {
-        getInvalidFields(inputDistance, inputDuration, inputElevation);
-        this._throwMessage(`${validationText.join(' and ')} is required.`);
+      if (this._getInvalidFields(inputDistance, inputDuration, inputElevation)) {
+        this._throwMessage(`${this.#validationText.includes('Elev Gain') ? this.#validationText.join(' and ') + ' is required.' : this.#validationText.join(' and ') + ' is required and should be a positive number.'}`);
         return;
       }
 
@@ -556,9 +564,9 @@ class App {
   }
 
   _deleteWorkout(workout, editting = false) {
-this._closeModal();
+    this._closeModal();
     const index = this.#workouts.indexOf(workout);
-const length = this.#workouts.length;
+    const length = this.#workouts.length;
     if (length === 1) this._hideMapActionBtns();
     this.#workouts.splice(index, 1);
     if (length === 0 && !editting) this._showWelcomeMessage();
