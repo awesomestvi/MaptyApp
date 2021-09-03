@@ -603,6 +603,10 @@ a:visited {
     gap: 0 1rem;
   }
 
+  .workout__title {
+    font-size: 1.7rem;
+  }
+
   .form {
     height: auto;
     gap: 1.25rem 2rem;
