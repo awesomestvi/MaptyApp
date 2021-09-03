@@ -96,7 +96,7 @@ class App {
   #mapEvent;
   #workouts = [];
   #markers = [];
-  #mapThemes = ['jawg-matrix', 'jawg-streets', 'jawg-dark'];
+  #mapThemes = ['jawg-streets', 'jawg-dark', 'jawg-matrix'];
   #curTheme = 0;
   #zoomLevel = 14;
   #mylocation;
